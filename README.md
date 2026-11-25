@@ -2,7 +2,7 @@
 
 **A Claude Code skill that audits, art-directs and redesigns the UI/UX of existing web applications.**
 
-[Leer en español](README.es.md) · License: [MIT](LICENSE)
+[Leer en español](README.es.md) · License: [CC BY-NC 4.0](LICENSE) (free for non-commercial use)
 
 `ui-ux-audit` turns Claude Code into a senior product designer and design-systems engineer for a project you already have. It reads your source code, drives the running app with [Playwright MCP](https://github.com/microsoft/playwright-mcp), scores ten quality dimensions, proposes three clearly different design directions, and turns the one you approve into a design-system spec and small, SDD-ready implementation tasks.
 
@@ -246,7 +246,7 @@ It exits with code 1 when any pair fails AA, so you can use it in CI.
 ui-ux-audit/
 ├── SKILL.md                     entry point: workflow, gates, modes, safety
 ├── README.md / README.es.md
-├── LICENSE
+├── LICENSE                      CC BY-NC 4.0
 ├── references/
 │   ├── design-principles.md
 │   ├── accessibility-guidelines.md
@@ -277,7 +277,7 @@ rm -rf ~/.claude/skills/ui-ux-audit
 On Windows use `"$env:USERPROFILE\.claude\skills\ui-ux-audit"` as the path, and `Remove-Item -Recurse -Force` to uninstall.
 
 ## Contributing
-Issues and pull requests are welcome. Useful contributions:
+Issues and pull requests are welcome. By contributing you agree that your contribution is licensed under the same CC BY-NC 4.0 terms. Useful contributions:
 - detection rules for more stacks, component libraries or SDD frameworks
 - sharper checklists or WCAG checks
 - real audit examples (with permission and without personal data)
@@ -285,4 +285,17 @@ Issues and pull requests are welcome. Useful contributions:
 Keep `SKILL.md` under 500 lines and put detail in `references/`.
 
 ## License
-[MIT](LICENSE) © 2026 Cristian Martinez
+© 2026 Cristian Martinez. Licensed under [Creative Commons Attribution-NonCommercial 4.0 International (CC BY-NC 4.0)](LICENSE).
+
+You can:
+- use the skill for free on your own projects, your studies or open source work
+- copy, modify and share it, including adapted versions
+
+As long as you:
+- credit the author and link to this repository and the license
+- say whether you changed anything
+- do not use it for commercial purposes: for example selling it, bundling it into a paid product or service, or offering paid audits based on it
+
+For commercial use, open an issue or contact the author to ask for permission.
+
+Note: because it restricts commercial use, this license is "source-available" rather than open source in the OSI sense.

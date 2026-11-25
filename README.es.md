@@ -2,7 +2,7 @@
 
 **Skill de Claude Code para auditar, dar dirección de arte y rediseñar la UI/UX de aplicaciones web que ya existen.**
 
-[Read in English](README.md) · Licencia: [MIT](LICENSE)
+[Read in English](README.md) · Licencia: [CC BY-NC 4.0](LICENSE) (uso libre sin fines comerciales)
 
 Con `ui-ux-audit`, Claude Code trabaja como un diseñador de producto senior y un ingeniero de design systems sobre un proyecto que ya tenés andando. Lee el código fuente, recorre la app en ejecución con [Playwright MCP](https://github.com/microsoft/playwright-mcp), puntúa diez dimensiones de calidad, propone tres direcciones de diseño bien distintas y convierte la que elijas en una especificación de design system y en tareas chicas, listas para SDD.
 
@@ -246,7 +246,7 @@ Si algún par no llega a AA, termina con código 1, así que también sirve en C
 ui-ux-audit/
 ├── SKILL.md                     punto de entrada: flujo, aprobaciones, modos, seguridad
 ├── README.md / README.es.md
-├── LICENSE
+├── LICENSE                      CC BY-NC 4.0
 ├── references/
 │   ├── design-principles.md
 │   ├── accessibility-guidelines.md
@@ -277,7 +277,7 @@ rm -rf ~/.claude/skills/ui-ux-audit
 En Windows usá `"$env:USERPROFILE\.claude\skills\ui-ux-audit"` como ruta y `Remove-Item -Recurse -Force` para desinstalar.
 
 ## Contribuir
-Los issues y pull requests son bienvenidos. Sirven especialmente:
+Los issues y pull requests son bienvenidos. Al contribuir, aceptás que tu aporte quede bajo la misma licencia CC BY-NC 4.0. Sirven especialmente:
 - reglas de detección para más stacks, librerías de componentes o frameworks de SDD
 - checklists más precisas o nuevos chequeos de WCAG
 - ejemplos de auditorías reales (con permiso y sin datos personales)
@@ -285,4 +285,17 @@ Los issues y pull requests son bienvenidos. Sirven especialmente:
 Mantené `SKILL.md` por debajo de 500 líneas y poné el detalle en `references/`.
 
 ## Licencia
-[MIT](LICENSE) © 2026 Cristian Martinez
+© 2026 Cristian Martinez. Se distribuye bajo la licencia [Creative Commons Atribución-NoComercial 4.0 Internacional (CC BY-NC 4.0)](LICENSE).
+
+Podés:
+- usar la skill gratis en tus propios proyectos, en tus estudios o en proyectos open source
+- copiarla, modificarla y compartirla, incluso versiones adaptadas
+
+Siempre que:
+- menciones al autor y enlaces este repositorio y la licencia
+- aclares si hiciste cambios
+- no la uses con fines comerciales, por ejemplo venderla, incluirla en un producto o servicio pago u ofrecer auditorías pagas basadas en ella
+
+Para un uso comercial, abrí un issue o contactá al autor para pedir permiso.
+
+Aclaración: como restringe el uso comercial, técnicamente es una licencia de código disponible (*source-available*) y no open source según la definición de la OSI.

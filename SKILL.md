@@ -2,6 +2,7 @@
 name: ui-ux-audit
 description: Audit, art-direct and redesign the UI/UX of an EXISTING web application. Inspects source code and the running app (Playwright MCP), scores visual quality, accessibility (WCAG 2.2 AA) and branding, proposes three distinct design directions, then produces a design system spec and SDD-ready implementation tasks. Implements only after explicit approval and validates with before/after screenshots.
 when_to_use: Use when the user asks to audit, review, critique, redesign, rebrand, modernize or visually improve an existing frontend, or to turn a UI critique into design tokens and implementation specs. Not for building a brand-new UI from scratch.
+license: CC-BY-NC-4.0 (see LICENSE)
 argument-hint: "[audit | directions | design-system | spec | implement | validate] [free-text instructions]"
 ---
 
