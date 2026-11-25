@@ -1,0 +1,5 @@
+# Audit artifacts if you test the skill inside this repo
+.ui-audit/
+node_modules/
+.DS_Store
+Thumbs.db
