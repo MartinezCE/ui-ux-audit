@@ -4,7 +4,18 @@
 - Mode: Audit only
 - Environment audited: {{URL / commit / branch}}
 - Auth: {{none / test account / existing session}}
-- Tooling: {{Playwright MCP yes/no, image analysis yes/no, axe yes/no}}
+- Report status: {{complete | partial: Frontend Design consultation blocked | blocked: no browser inspection}}
+
+## 0. Specialists and evidence
+Copied from `00-dependencies.md` and the tool usage log in `AUDIT_STATE.md`. Only **succeeded** rows count as used.
+
+| Capability | Status | Name / tool prefix | Used in this report for | Evidence |
+|---|---|---|---|---|
+| Playwright MCP | {{succeeded / failed / missing}} | {{mcp__playwright__}} | {{N screenshots, M snapshots, console checks}} | `02-browser-inspection.md` |
+| frontend-design | {{succeeded / failed / missing}} | {{frontend-design:frontend-design}} | {{critique of the current design}} | `03-frontend-design-consultation.md` |
+| axe-core (optional) | {{succeeded / not present}} | | | |
+
+Blocked phases and why: {{none / list}}
 
 ## 1. Scope
 | Screen | Route | Widths captured | States captured | Notes |
@@ -50,7 +61,7 @@ For each dimension:
 - Brand constraints found: {{only evidenced ones}}
 
 ## 5. Findings
-Sorted by severity. Tags: [automated] tool output · [measured] computed by you · [judgment] expert opinion.
+Sorted by severity. Tags: [automated] tool output · [measured] computed by you · [judgment] expert opinion · [frontend-design] from the specialist consultation.
 
 ### F-001 {{Title}} — {{Critical/High/Medium/Low}} — {{tag}}
 - Where:
@@ -83,4 +94,4 @@ Statement: No claim of WCAG conformance is made. Results apply only to the teste
 {{what works and must survive any redesign}}
 
 ## 10. Next step
-Phase 3: art direction (three directions). If this run was invoked with `audit`, it stops here until the user asks for directions.
+Phase 5: three design directions, developed with frontend-design. If this run was invoked with `audit`, it stops here until the user asks for directions.

@@ -1,6 +1,9 @@
 # Visual audit checklist
 
 ## Capture procedure
+All browser work goes through Playwright MCP. Tool names below are short forms: call them with the prefix found in Phase 0 (for example `mcp__playwright__browser_navigate`). Exact arguments: [orchestration.md §4](orchestration.md#4-invoking-playwright-mcp).
+
+0. Make sure `.ui-audit/screenshots/baseline/` (or `after/`) and `.ui-audit/evidence/` exist; screenshots fail if the folder is missing.
 1. Confirm the base URL with the user (never guess production URLs; audit local or test environments).
 2. Build the screen list from routes + navigation. Prioritize: entry/auth, main dashboard/home, the 3–5 most used workflows, a form-heavy screen, a table/list screen, settings, error/404.
 3. For each screen and each viewport (see responsive-guidelines.md):
@@ -10,7 +13,8 @@
    - `browser_console_messages` once per screen; record errors/warnings.
 4. States (desktop + mobile at least): hover and focus on primary controls, open dropdown/menu, open modal, form validation errors (submit empty), empty list, loading (throttle or catch during navigation), error state if reachable without breaking anything. Only trigger states that are safe: never submit real orders, payments, deletions or emails. Use cancel paths, test data or ask.
 5. Run `scripts/style-inventory.js` via `browser_evaluate` on 3–5 representative screens. Save output as `.ui-audit/evidence/<screen>-styles.json`.
-6. Before saving any screenshot, check it for personal data, tokens or secrets; if present, ask the user or use test data. Never save screenshots of password managers or credential fields with values.
+6. Record every capture in the results table of `02-browser-inspection.md` and one summary row in the tool usage log.
+7. Before saving any screenshot, check it for personal data, tokens or secrets; if present, ask the user or use test data. Never save screenshots of password managers or credential fields with values.
 
 Do not assume the homepage represents the app.
 

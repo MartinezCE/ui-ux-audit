@@ -22,6 +22,7 @@ Everything else is a proposal. Label it so. If something looks like a brand cons
 - **Coherence across screens:** do login, dashboard and settings feel like one product?
 
 ## 2. Generating three directions
+The directions are developed by the `frontend-design` specialist (Phase 5 brief in [orchestration.md §3](orchestration.md#3-invoking-frontend-design)). This section is what the orchestrator gives it as requirements and then checks in its output. If frontend-design is unavailable, the phase is blocked; these rules are not a substitute.
 
 | | 1. Conservative refinement | 2. Modernization | 3. Full rebrand |
 |---|---|---|---|

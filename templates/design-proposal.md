@@ -1,7 +1,20 @@
 # Design Directions — {{Product name}}
 
 - Date: {{YYYY-MM-DD}}
-- Based on: `02-audit-report.md`
+- Based on: `04-audit-report.md`
+
+## Frontend Design consultation
+| Brief | Skill name invoked | Status | When |
+|---|---|---|---|
+| Phase 5 brief (in `03-frontend-design-consultation.md`) | {{frontend-design:frontend-design}} | {{succeeded / failed}} | {{date time}} |
+
+If the status is not **succeeded**, this document must not exist: Phase 5 is blocked.
+
+## Orchestrator review of the specialist output
+- Differentiation test: {{pass / what was changed}}
+- Contrast check (`contrast.mjs`): {{pairs checked, failures fixed}}
+- Feasibility vs stack and do-not-touch list: {{notes}}
+- Changes made to the specialist's proposals and why: {{list or none}}
 
 ## Brand constraints (existing, evidenced)
 | Constraint | Source |

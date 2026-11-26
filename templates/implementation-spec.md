@@ -1,7 +1,7 @@
 # Implementation Specification — {{Product name}} UI redesign
 
 - Direction: {{name}}
-- Design system: `05-design-system-spec.md`
+- Design system: `07-design-system-spec.md`
 - SDD framework detected: {{none / OpenSpec / Kiro-style specs / spec-kit / other}} → {{if one was detected, these tasks are emitted in its format instead of this file}}
 
 ## Guardrails (apply to every task)

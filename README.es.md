@@ -8,6 +8,36 @@ Con `ui-ux-audit`, Claude Code trabaja como un diseñador de producto senior y u
 
 No modifica tu código salvo que lo apruebes de forma explícita, y verifica el resultado comparando capturas de antes y después.
 
+## Arquitectura
+`ui-ux-audit` funciona como orquestador. Lleva el flujo de trabajo y le delega dos tareas a especialistas obligatorios, a los que les pasa el contexto que necesitan:
+
+```
+                 ┌──────────────────────────────────────────────┐
+                 │  ui-ux-audit  (orquestador)                  │
+                 │  relevamiento · aprobaciones · informes · SDD│
+                 └───────┬───────────────────────────┬──────────┘
+          plan de        │                           │   brief: contexto,
+          recorrido:     ▼                           ▼   capturas, hallazgos,
+          URL, rutas,    ┌─────────────────┐  ┌─────────────────┐  restricciones
+          anchos         │ Playwright MCP  │  │ frontend-design │
+                         │ cómo se ve y se │  │ cómo debería    │
+                         │ comporta        │  │ verse y sentirse│
+                         └─────────────────┘  └─────────────────┘
+          capturas, snapshots, consola         crítica, 3 direcciones,
+                                               estética del design system
+```
+
+| Capacidad | Responsabilidad | ¿Obligatoria? | Cómo se invoca |
+|---|---|---|---|
+| `ui-ux-audit` | Orquestar el flujo de trabajo | Sí | `/ui-ux-audit`, o automáticamente |
+| `frontend-design` | Dirección de arte y diseño visual | Sí | Herramienta Skill, `frontend-design:frontend-design` (plugin oficial) |
+| Playwright MCP | Inspección y validación en el navegador | Sí | Herramientas MCP `mcp__<servidor>__browser_*` |
+
+Reglas que sigue el orquestador:
+- Cada ejecución empieza verificando los dos especialistas y muestra su estado (faltante, detectado, exitoso, con error).
+- Detectar una herramienta no es invocarla, e invocarla no significa que haya funcionado. Un informe solo dice que se usó un especialista si el registro de uso tiene una llamada exitosa.
+- Si falta un especialista, las fases que dependen de él figuran como bloqueadas. La skill no completa ese hueco con razonamiento genérico ni instala nada sin preguntar.
+
 - Funciona con cualquier stack: React, Next.js, Vue, Nuxt, Svelte, Angular, Astro, templates del lado del servidor…
 - Respeta lo que ya hay: tu forma de manejar tokens, tu librería de componentes, tus convenciones y tu framework de SDD.
 - Se detiene en puntos de aprobación, así que las decisiones del rediseño siempre las tomás vos.
@@ -18,20 +48,21 @@ No modifica tu código salvo que lo apruebes de forma explícita, y verifica el 
 1. [Qué hace](#qué-hace)
 2. [Requisitos](#requisitos)
 3. [Instalación](#instalación)
-4. [Configurar Playwright MCP](#configurar-playwright-mcp)
-5. [Primeros pasos](#primeros-pasos)
-6. [Uso](#uso)
-7. [Flujo y puntos de aprobación](#flujo-y-puntos-de-aprobación)
-8. [Modos de trabajo](#modos-de-trabajo)
-9. [Qué genera](#qué-genera)
-10. [Integración con SDD](#integración-con-sdd)
-11. [Scripts](#scripts)
-12. [Seguridad](#seguridad)
-13. [Limitaciones](#limitaciones)
-14. [Estructura del repo](#estructura-del-repo)
-15. [Actualizar y desinstalar](#actualizar-y-desinstalar)
-16. [Contribuir](#contribuir)
-17. [Licencia](#licencia)
+4. [Configurar frontend-design](#configurar-frontend-design)
+5. [Configurar Playwright MCP](#configurar-playwright-mcp)
+6. [Primeros pasos](#primeros-pasos)
+7. [Uso](#uso)
+8. [Flujo y puntos de aprobación](#flujo-y-puntos-de-aprobación)
+9. [Modos de trabajo](#modos-de-trabajo)
+10. [Qué genera](#qué-genera)
+11. [Integración con SDD](#integración-con-sdd)
+12. [Scripts](#scripts)
+13. [Seguridad](#seguridad)
+14. [Limitaciones](#limitaciones)
+15. [Estructura del repo](#estructura-del-repo)
+16. [Actualizar y desinstalar](#actualizar-y-desinstalar)
+17. [Contribuir](#contribuir)
+18. [Licencia](#licencia)
 
 ---
 
@@ -53,13 +84,13 @@ No modifica tu código salvo que lo apruebes de forma explícita, y verifica el 
 | Dependencia | ¿Obligatoria? | Para qué | Cómo conseguirla |
 |---|---|---|---|
 | [Claude Code](https://code.claude.com/docs) | sí | Ejecuta la skill | Ver la documentación oficial |
-| Node.js 18+ | sí | Corre Playwright MCP con `npx` y `scripts/contrast.mjs` | [nodejs.org](https://nodejs.org) |
+| Node.js 18+ | sí | Playwright MCP con `npx`, los scripts y el guard de ediciones | [nodejs.org](https://nodejs.org) |
 | Git | para instalar desde este repo | Clonar y actualizar | [git-scm.com](https://git-scm.com) |
-| Playwright MCP (`@playwright/mcp`, de Microsoft) | muy recomendable | Navegar la app, cambiar el tamaño de la ventana, sacar capturas, leer el árbol de accesibilidad y la consola | [Ver abajo](#configurar-playwright-mcp) |
-| Plugin `frontend-design` (Anthropic) | opcional | Exploración estética más rica en la dirección de arte | `/plugin install frontend-design@claude-plugins-official` |
+| Playwright MCP (`@playwright/mcp`, de Microsoft) | **sí** | Navegar la app, cambiar el tamaño de la ventana, sacar capturas, leer el árbol de accesibilidad y la consola, validar antes/después | [Ver abajo](#configurar-playwright-mcp) |
+| Plugin `frontend-design` (Anthropic) | **sí** | Dirección de arte, identidad visual, tipografía, color, estética del design system | [Ver abajo](#configurar-frontend-design) |
 | axe-core en tu proyecto | opcional | Resultados automáticos de accesibilidad, si ya lo tenés | La skill nunca lo instala sin preguntar |
 
-Sin Playwright MCP la skill igual funciona, pero hace una auditoría basada solo en el código y lo aclara en cada informe.
+Sin Playwright MCP la skill solo puede hacer el relevamiento: la auditoría en el navegador, las direcciones y la validación quedan bloqueadas. Sin frontend-design puede auditar, pero las fases de dirección de arte quedan bloqueadas. En los dos casos te dice qué falta y con qué comando se instala.
 
 ## Instalación
 Claude Code busca skills en `~/.claude/skills/<nombre>/SKILL.md` (personales, para todos tus proyectos) y en `<repo>/.claude/skills/<nombre>/SKILL.md` (de un proyecto, compartidas por git). La raíz de este repo ya es la carpeta de la skill, así que alcanza con clonarlo en el lugar correcto.
@@ -94,8 +125,24 @@ Abrí `claude` y escribí `/`. Tiene que aparecer `ui-ux-audit` en la lista. Las
 
 > **Para claude.ai o la API de Skills:** el frontmatter usa dos campos que solo entiende Claude Code (`when_to_use` y `argument-hint`). Borrá esas dos líneas de `SKILL.md` antes de subirla a otro lado, porque ahí los campos desconocidos dan error.
 
+## Configurar frontend-design
+Es el plugin oficial de Anthropic, del marketplace `claude-plugins-official`:
+```bash
+claude plugin install frontend-design@claude-plugins-official
+```
+También se puede instalar desde una sesión con `/plugin install frontend-design@claude-plugins-official`. Después corré `/reload-plugins` (o abrí una sesión nueva) y fijate que aparezca `/frontend-design:frontend-design` al escribir `/`. `claude plugin list` también lo muestra con su estado.
+
+frontend-design es una skill de instrucciones: cuando el orquestador la invoca, sus pautas de diseño se cargan en la conversación y el trabajo de diseño se hace siguiéndolas. El orquestador guarda el brief y el resultado en `.ui-audit/03-frontend-design-consultation.md`.
+
 ## Configurar Playwright MCP
-Usá el servidor oficial de Microsoft: [microsoft/playwright-mcp](https://github.com/microsoft/playwright-mcp).
+Usá el servidor oficial de Microsoft: [microsoft/playwright-mcp](https://github.com/microsoft/playwright-mcp). Instalalo de **una** sola forma, como servidor MCP independiente o como el plugin oficial que trae el mismo servidor. La skill detecta cualquiera de las dos y nunca agrega una segunda.
+
+Como plugin:
+```bash
+claude plugin install playwright@claude-plugins-official
+```
+
+Como servidor independiente:
 
 ```bash
 # Disponible en todos tus proyectos
@@ -160,9 +207,18 @@ Ejemplos:
 Claude también puede activar la skill por su cuenta si le pedís algo como "revisá la UX de esta app" o "este dashboard se ve viejo, proponé un rediseño". En ese caso también trabaja en modo solo auditoría.
 
 ## Flujo y puntos de aprobación
-```
-1 Relevamiento ─▶ 2 Auditoría ─▶ 3 Dirección de arte ─▶ ⛔ 4 Aprobación ─▶ 5 Design system ─▶ 6 Spec SDD ─▶ ⛔ 7 Implementación ─▶ 8 Validación
-```
+| Fase | Qué pasa | Especialista |
+|---|---|---|
+| 0 Verificación de dependencias | Detecta y prueba los dos especialistas, revisa el guard de ediciones e informa qué fases quedan bloqueadas | los dos (prueba) |
+| 1 Relevamiento del proyecto | Framework, ruteo, componentes, estilos, tokens, librerías, recursos, convenciones y SDD | — |
+| 2 Inspección real en el navegador | Rutas × 1440/1280/768/390 px × estados, capturas, snapshots, consola, inventario de estilos | Playwright MCP |
+| 3 Consulta a Frontend Design | Crítica del diseño actual a partir del contexto, las capturas y los hallazgos | frontend-design |
+| 4 Informe de auditoría combinado | Evidencia + crítica de diseño + código + UX + accesibilidad + responsive, con puntajes | — |
+| 5 Tres direcciones de diseño | Refinamiento conservador, modernización y rebranding completo; el orquestador revisa contraste, diferencias y factibilidad | frontend-design |
+| 6 ⛔ Aprobación | Elegís una dirección | — |
+| 7 Design system y SDD | Tokens, especificación de componentes, reglas responsive y de accesibilidad, tareas con criterios de aceptación | frontend-design (estética) |
+| 8 ⛔ Implementación aprobada | Solo las tareas que nombres | — |
+| 9 Validación visual | Las mismas rutas, anchos y estados otra vez, comparación antes/después, regresiones | Playwright MCP |
 
 La skill se frena y te espera:
 - antes de levantar un servidor de desarrollo o cualquier otro proceso
@@ -182,13 +238,17 @@ Todo queda en `.ui-audit/`, en la raíz del proyecto auditado:
 
 ```
 .ui-audit/
-├── AUDIT_STATE.md              fase actual, modo, dirección elegida, tareas aprobadas
-├── 01-discovery.md             stack, rutas, tokens, componentes, lista de lo que no se toca
-├── 02-audit-report.md          puntajes, hallazgos, accesibilidad, tabla responsive
-├── 03-design-directions.md     tres direcciones con paletas, tipografía y ejemplos
-├── 05-design-system-spec.md    tokens y guías de componentes
-├── 06-implementation-spec.md   tareas UI-001… (o los archivos de tu framework de SDD)
-├── 08-validation-report.md     comparación antes/después y criterios cumplidos
+├── AUDIT_STATE.md                      fase, modo, dirección, tareas aprobadas, registro de uso de herramientas
+├── 00-dependencies.md                  estado de los especialistas y fases bloqueadas
+├── 01-discovery.md                     stack, rutas, tokens, componentes, lista de lo que no se toca
+├── 02-browser-inspection.md            plan de recorrido con Playwright y resultados
+├── 03-frontend-design-consultation.md  briefs enviados a frontend-design y su resultado
+├── 04-audit-report.md                  puntajes, hallazgos, accesibilidad, tabla responsive
+├── 05-design-directions.md             tres direcciones con paletas, tipografía y ejemplos
+├── 07-design-system-spec.md            tokens y guías de componentes
+├── 07-implementation-spec.md           tareas UI-001… (o los archivos de tu framework de SDD)
+├── 09-validation-report.md             comparación antes/después y criterios cumplidos
+├── guard.log                           decisiones del guard de ediciones
 ├── screenshots/
 │   ├── baseline/               <pantalla>--<ancho>--<estado>.png
 │   └── after/
@@ -206,12 +266,12 @@ La skill detecta si el proyecto ya usa desarrollo guiado por especificaciones y 
 | OpenSpec | `openspec/` | Propuesta de cambio con la estructura de OpenSpec |
 | Specs estilo Kiro | `specs/<feature>/requirements.md`, `design.md`, `tasks.md` | `specs/ui-redesign-<slug>/` con los mismos tres archivos |
 | spec-kit | `.specify/` | Artefactos según sus plantillas |
-| Ninguno | | `.ui-audit/06-implementation-spec.md` |
+| Ninguno | | `.ui-audit/07-implementation-spec.md` |
 
 Escribir en tus carpetas de especificaciones cuenta como un cambio en el proyecto, así que primero te pregunta.
 
 ## Scripts
-Los dos son de solo lectura y no tienen dependencias.
+Ninguno tiene dependencias.
 
 **`scripts/contrast.mjs`** calcula el contraste WCAG exacto.
 ```bash
@@ -223,6 +283,8 @@ node scripts/contrast.mjs --inventory .ui-audit/evidence/dashboard-styles.json
 Si algún par no llega a AA, termina con código 1, así que también sirve en CI.
 
 **`scripts/style-inventory.js`** es una función que se le pasa a `browser_evaluate` de Playwright MCP. Devuelve las fuentes, tamaños, colores, radios, sombras y espaciados que la página usa de verdad, los pares de texto y fondo para medir contraste, los elementos interactivos de menos de 24×24 px, el scroll horizontal, la jerarquía de títulos y las imágenes sin `alt`.
+
+**`scripts/guard-source-edits.mjs`** es un hook `PreToolUse` declarado en `SKILL.md`. Desde que se usa la skill, bloquea Edit, Write y NotebookEdit fuera de `.ui-audit/` mientras `AUDIT_STATE.md` diga `Mode: A`, y anota cada decisión en `.ui-audit/guard.log`. Cuando aprobás tareas, la skill pasa a `Mode: B`. Cuando termina la auditoría, pedile que ponga `Mode: off`, porque los hooks de una skill quedan activos hasta el final de la sesión.
 
 ## Seguridad
 - No muestra en el chat ni guarda en archivos credenciales, API keys, tokens ni cookies.
@@ -239,6 +301,8 @@ Si algún par no llega a AA, termina con código 1, así que también sirve en C
 - Las diferencias finas de píxeles se detectan mejor con `toHaveScreenshot` de Playwright que mirando imágenes.
 - Quedan fuera de alcance las interfaces basadas en canvas o WebGL, las apps móviles nativas y los templates de email.
 - Las fuentes y recursos que sugieren las direcciones requieren revisar su licencia.
+- El guard cubre las herramientas de edición de archivos de Claude, no los comandos de shell; en modo auditoría, que no se escriba con Bash depende solo de las instrucciones. El comando del hook usa `${CLAUDE_SKILL_DIR}`: si tu shell no la resuelve (por ejemplo PowerShell sin Git Bash), el hook no bloquea nada y la fase 0 informa el guard como faltante.
+- El flujo se probó contra `@playwright/mcp` 0.0.68 y el código del plugin oficial frontend-design 1.1.1, no contra todas las versiones.
 - Una auditoría larga consume bastante contexto. Los informes se guardan en archivos y las respuestas en el chat son cortas; podés retomar cuando quieras con `/ui-ux-audit`.
 
 ## Estructura del repo
@@ -254,15 +318,18 @@ ui-ux-audit/
 │   ├── responsive-guidelines.md
 │   ├── visual-audit-checklist.md
 │   ├── branding-guidelines.md
-│   └── frontend-implementation-guidelines.md
+│   ├── frontend-implementation-guidelines.md
+│   └── orchestration.md         detección, invocación y briefs de los especialistas, registro de uso
 ├── templates/
 │   ├── audit-report.md
 │   ├── design-proposal.md
 │   ├── design-system-spec.md
-│   └── implementation-spec.md
+│   ├── implementation-spec.md
+│   └── validation-report.md
 └── scripts/
     ├── contrast.mjs
-    └── style-inventory.js
+    ├── style-inventory.js
+    └── guard-source-edits.mjs   hook PreToolUse del modo solo auditoría
 ```
 `SKILL.md` es corto a propósito. Claude lee las referencias y plantillas solo cuando una fase las necesita.
 

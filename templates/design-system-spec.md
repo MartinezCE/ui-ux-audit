@@ -3,6 +3,7 @@
 - Direction: {{name}} (approved {{date}})
 - Token mechanism: {{CSS variables / Tailwind theme / SCSS / MUI theme …}} (existing: {{yes/no}})
 - Naming convention: {{as used by the project}}
+- Frontend Design input: Phase 7 section of `03-frontend-design-consultation.md` (status: {{succeeded}})
 
 ## 1. Color tokens
 ### Primitives
