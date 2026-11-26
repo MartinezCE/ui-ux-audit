@@ -41,7 +41,7 @@ Detection is not invocation. Invocation is not success. Never write that a speci
 4. Probe: call `<prefix>browser_tabs` with `{ "action": "list" }`. A tab list (even `about:blank`) means **succeeded**. An error means **failed**: quote it (common causes: browser not installed → `npx playwright install chromium`; server not connected → `/mcp`).
 
 ### 2.3 Source-edit guard
-This skill registers a `PreToolUse` hook (`scripts/guard-source-edits.mjs`) that blocks Edit/Write/NotebookEdit outside `.ui-audit/` unless `AUDIT_STATE.md` says `Mode: B`. Writing `00-dependencies.md` triggers it. Then read `.ui-audit/guard.log`:
+This skill registers a `PreToolUse` hook (`scripts/guard-source-edits.mjs`) that enforces the write limits of the current mode for Edit/Write/NotebookEdit (Mode A: only `.ui-audit/`; Mode B: plus the approved `SDD paths`; Mode C: approved task files). See [integration-contracts.md §3](integration-contracts.md#3-quality-gates) for how modes relate to gates. Writing `00-dependencies.md` triggers it. Then read `.ui-audit/guard.log`:
 - a new `allow` line for `00-dependencies.md` → guard **succeeded**
 - no line → guard **missing** (hook not registered or not runnable). Say so; audit-only mode then relies on instructions alone.
 
@@ -104,7 +104,7 @@ Stack constraints: {{framework, styling, component library, token mechanism}}
 Existing brand identity (evidenced only): {{logo colors, mandated fonts, docs}} — anything else is open
 Current design characteristics: {{fonts, palette, radii, density, icon set; from style inventories}}
 Screenshots (paths): {{3–6 most representative, desktop + mobile}}
-Audit findings to address: {{top F-ids with one line each}}
+Audit findings to address: {{top AUD ids with priority, kind and one line each}}
 Hard constraints: keep IA, routes and functionality; WCAG 2.2 AA; reuse existing component library
 Selected direction (phase 7 only): {{name + adjustments}}
 Expected output: {{3: strengths, weaknesses, personality read | 5: per direction: concept, personality, palette HEX, typography, layout, component style, navigation, pros, cons, complexity | 7: token values and component aesthetics}}

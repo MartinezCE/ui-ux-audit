@@ -91,8 +91,14 @@ If the status is not **succeeded**, this document must not exist: Phase 5 is blo
 ## Decision needed
 Choose 1, 2, 3, or a combination, or ask for changes.
 
-## Selected direction (filled after approval)
+## Selected direction (filled after approval, Gate G4)
 - Choice:
 - Adjustments requested:
-- Justification:
-- Approved by user on:
+- User's message (quoted):
+- Approved on:
+
+### Design decisions
+Only these can become specifications (Contract C).
+| DES | Decision | Addresses (AUD) | Source |
+|---|---|---|---|
+| DES-001 | {{Standardize primary and secondary button styles}} | AUD-001, AUD-004 | Direction {{n}} |

@@ -48,7 +48,7 @@ For each dimension:
 #### {{Dimension}} — {{score}}/10
 - Reasoning:
 - Evidence: {{screenshots, measurements, files}}
-- Main issues: {{F-ids}}
+- Main issues: {{AUD ids}}
 - Recommended improvements:
 
 ## 4. Current-state inventory
@@ -61,13 +61,14 @@ For each dimension:
 - Brand constraints found: {{only evidenced ones}}
 
 ## 5. Findings
-Sorted by severity. Tags: [automated] tool output · [measured] computed by you · [judgment] expert opinion · [frontend-design] from the specialist consultation.
+Sorted by priority. Usability problems first, then preferences. Lifecycle AUD → DES → SPEC → TASK → VAL is tracked in `TRACEABILITY.md`. Tags: [automated] tool output · [measured] computed by you · [judgment] expert opinion · [frontend-design] from the specialist consultation.
 
-### F-001 {{Title}} — {{Critical/High/Medium/Low}} — {{tag}}
-- Where:
+### AUD-001 {{Title}} — Priority: {{Critical/High/Medium/Low}} — Kind: {{usability / preference}} — {{tag}}
+- Where (route, screen, viewport, element, file):
 - Evidence:
 - Why it matters:
 - Recommendation:
+- Plan: {{candidate for a DES decision / not planned (reason)}}
 
 ## 6. Accessibility
 ### Verified violations
@@ -92,6 +93,12 @@ Statement: No claim of WCAG conformance is made. Results apply only to the teste
 
 ## 9. Strengths to keep
 {{what works and must survive any redesign}}
+
+## Gates
+| Gate | Status | Evidence |
+|---|---|---|
+| G1 Dependencies | {{passed/failed/blocked}} | `00-dependencies.md` |
+| G2 Evidence | {{passed/failed/blocked}} | Contract A in `02-browser-inspection.md` |
 
 ## 10. Next step
 Phase 5: three design directions, developed with frontend-design. If this run was invoked with `audit`, it stops here until the user asks for directions.

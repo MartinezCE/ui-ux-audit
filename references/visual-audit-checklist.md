@@ -71,14 +71,16 @@ Check each present: buttons, inputs, selects, dropdowns, tables, cards, navigati
 
 ## Finding format
 ```
-### F-012 Inconsistent primary buttons  — Severity: High — [measured]
+### AUD-012 Inconsistent primary buttons — Priority: High — Kind: usability — [measured]
 Where: Orders (`OrdersPage.tsx`), Settings (`SettingsForm.vue`), Login
 Evidence: orders--1440--default.png, settings--1440--default.png; heights 36/40/44px, radii 4/6/9999px, three blues (#2563eb, #1d4ed8, #3b82f6)
 Why it matters: users rely on consistent visual cues to find the main action; three styles dilute brand and slow recognition.
 Recommendation: single Button primitive with size tokens (32/40/48) and `--color-primary`; migrate the three call sites.
 ```
 
-Severity scale: **Critical** (blocks a task or a verified AA failure on a core flow), **High** (frequent friction or inconsistency on core screens), **Medium** (noticeable, workaround exists), **Low** (polish).
+Each finding also gets a **kind**: `usability` (evidence that it hurts comprehension, task completion, error recovery or accessibility) or `preference` (subjective taste). Preferences are never Critical or High. IDs and lifecycle: [integration-contracts.md §1](integration-contracts.md#1-stable-identifiers).
+
+Priority scale: **Critical** (blocks a task or a verified AA failure on a core flow), **High** (frequent friction or inconsistency on core screens), **Medium** (noticeable, workaround exists), **Low** (polish).
 
 ## Scoring guidance (0–10)
 - 9–10: exemplary, would hold up against best-in-class products in its category
