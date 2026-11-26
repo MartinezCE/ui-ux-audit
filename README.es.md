@@ -1,15 +1,40 @@
-# ui-ux-audit
+# UI/UX Audit Ecosystem
 
-**Skill de Claude Code para auditar, dar dirección de arte y rediseñar la UI/UX de aplicaciones web que ya existen.**
+**Un flujo de Claude Code en cinco capas para auditar, dar dirección de arte, especificar, rediseñar y validar la UI/UX de aplicaciones web que ya existen.**
 
 [Read in English](README.md) · Licencia: [CC BY-NC 4.0](LICENSE) (uso libre sin fines comerciales)
 
-Con `ui-ux-audit`, Claude Code trabaja como un diseñador de producto senior y un ingeniero de design systems sobre un proyecto que ya tenés andando. Lee el código fuente, recorre la app en ejecución con [Playwright MCP](https://github.com/microsoft/playwright-mcp), puntúa diez dimensiones de calidad, propone tres direcciones de diseño bien distintas y convierte la que elijas en una especificación de design system y en tareas chicas, listas para SDD.
+```
+┌──────────────────────────────────────────────────┐
+│ 1. UI/UX Audit                                   │
+│    Orquestación y Quality Gates                  │
+├──────────────────────────────────────────────────┤
+│ 2. Frontend Design                               │
+│    Art direction                                 │
+├──────────────────────────────────────────────────┤
+│ 3. Playwright MCP                                │
+│    Browser inspection                            │
+├──────────────────────────────────────────────────┤
+│ 4. SDD / OpenSpec                                │
+│    Specifications · Tasks · Acceptance Criteria  │
+├──────────────────────────────────────────────────┤
+│ 5. Frontend Implementation                       │
+│    Approved changes · Testing · Regression       │
+└──────────────────────────────────────────────────┘
+```
 
-No modifica tu código salvo que lo apruebes de forma explícita, y verifica el resultado comparando capturas de antes y después.
+| Capa | Qué hace | Con qué | ¿Obligatoria? |
+|---|---|---|---|
+| **1. UI/UX Audit** | Orquestación y quality gates: flujo, verificación de dependencias, aprobaciones, informes, trazabilidad | la skill `ui-ux-audit` (este repo) | Sí |
+| **2. Frontend Design** | Dirección de arte: identidad visual, tipografía, color, layout, estética de componentes, design system | el plugin `frontend-design` de Anthropic | Sí |
+| **3. Playwright MCP** | Inspección en el navegador: rutas reales, anchos, interacciones, capturas, validación antes/después | `@playwright/mcp` de Microsoft | Sí |
+| **4. SDD / OpenSpec** | Especificaciones, tareas y criterios de aceptación, solo a partir de decisiones aprobadas | el framework de SDD de tu proyecto, o las plantillas incluidas | Solo para especificar e implementar |
+| **5. Frontend Implementation** | Cambios aprobados, tests y control de regresiones, solo con tu aprobación explícita | Claude Code en modo implementación | Solo con tu aprobación |
+
+El punto de entrada es la skill `ui-ux-audit`. Lee el código fuente, recorre la app en ejecución con Playwright MCP, consulta a frontend-design para la dirección de arte, puntúa diez dimensiones de calidad, propone tres direcciones de diseño bien distintas y convierte la que elijas en un design system y en tareas listas para SDD. No modifica tu código salvo que lo apruebes de forma explícita, y valida el resultado con capturas de antes y después.
 
 ## Arquitectura
-Son cinco capas con responsabilidades separadas. `ui-ux-audit` es el orquestador: nunca hace el trabajo de un especialista y le pasa a cada capa un paquete estructurado y trazable.
+Cómo trabajan juntas las cinco capas. `ui-ux-audit` es el orquestador: nunca hace el trabajo de un especialista y le pasa a cada capa un paquete estructurado y trazable.
 
 ```
             ┌──────────── 1 UI/UX Audit (orquestador) ─────────────┐
@@ -25,14 +50,6 @@ Son cinco capas con responsabilidades separadas. `ui-ux-audit` es el orquestador
                                   ▼
                         3 Playwright MCP (validación) ──▶ 1 (informe de validación)
 ```
-
-| Capa | Responsabilidad | La implementa | ¿Obligatoria? |
-|---|---|---|---|
-| 1 UI/UX Audit | Flujo, dependencias, gates de calidad, aprobaciones, informes, especificaciones, coordinación de la validación | esta skill (`/ui-ux-audit`) | Sí |
-| 2 Frontend Design | Dirección de arte, identidad visual, tipografía, color, layout, estética de componentes, design system | skill `frontend-design`, plugin oficial | Sí |
-| 3 Playwright MCP | Navegación, rutas, interacción, capturas, revisión responsive, validación antes/después | herramientas MCP `mcp__<servidor>__browser_*` | Sí |
-| 4 SDD / OpenSpec | Convertir decisiones aprobadas en especificaciones, tareas, criterios de aceptación y seguimiento | el framework de tu proyecto si tiene uno, si no las plantillas de la skill | Solo para especificar e implementar |
-| 5 Implementación frontend | Aplicar las tareas aprobadas sin tocar lógica, APIs ni rutas | Claude en Modo C | Solo con tu aprobación |
 
 Reglas que sigue el orquestador:
 - Cada ejecución empieza verificando los especialistas (gate G1) y muestra su estado: faltante, detectado, exitoso o con error.

@@ -1,15 +1,40 @@
-# ui-ux-audit
+# UI/UX Audit Ecosystem
 
-**A Claude Code skill that audits, art-directs and redesigns the UI/UX of existing web applications.**
+**A five-layer Claude Code workflow to audit, art-direct, specify, redesign and validate the UI/UX of existing web applications.**
 
 [Leer en español](README.es.md) · License: [CC BY-NC 4.0](LICENSE) (free for non-commercial use)
 
-`ui-ux-audit` turns Claude Code into a senior product designer and design-systems engineer for a project you already have. It reads your source code, drives the running app with [Playwright MCP](https://github.com/microsoft/playwright-mcp), scores ten quality dimensions, proposes three clearly different design directions, and turns the one you approve into a design-system spec and small, SDD-ready implementation tasks.
+```
+┌──────────────────────────────────────────────────┐
+│ 1. UI/UX Audit                                   │
+│    Orchestration · Quality Gates                 │
+├──────────────────────────────────────────────────┤
+│ 2. Frontend Design                               │
+│    Art direction                                 │
+├──────────────────────────────────────────────────┤
+│ 3. Playwright MCP                                │
+│    Browser inspection                            │
+├──────────────────────────────────────────────────┤
+│ 4. SDD / OpenSpec                                │
+│    Specifications · Tasks · Acceptance Criteria  │
+├──────────────────────────────────────────────────┤
+│ 5. Frontend Implementation                       │
+│    Approved changes · Testing · Regression       │
+└──────────────────────────────────────────────────┘
+```
 
-It does not touch your code unless you explicitly approve it, and it checks the result with before/after screenshots.
+| Layer | What it does | Powered by | Required |
+|---|---|---|---|
+| **1. UI/UX Audit** | Orchestration and quality gates: workflow, dependency checks, approvals, audit reports, traceability | the `ui-ux-audit` skill (this repo) | Yes |
+| **2. Frontend Design** | Art direction: visual identity, typography, color, layout, component aesthetics, design system | Anthropic's `frontend-design` plugin | Yes |
+| **3. Playwright MCP** | Browser inspection: real routes, viewports, interactions, screenshots, before/after validation | Microsoft's `@playwright/mcp` | Yes |
+| **4. SDD / OpenSpec** | Specifications, tasks and acceptance criteria from approved decisions only | your project's SDD framework, or the built-in templates | Only to specify and implement |
+| **5. Frontend Implementation** | Approved changes, testing and regression checks, only with your explicit approval | Claude Code in implementation mode | Only with your approval |
+
+The entry point is the `ui-ux-audit` skill. It reads your source code, inspects the running app through Playwright MCP, consults frontend-design for art direction, scores ten quality dimensions, proposes three clearly different design directions, and turns the one you approve into a design system and SDD-ready tasks. It does not touch your code unless you explicitly approve it, and it validates the result with before/after screenshots.
 
 ## Architecture
-Five layers with separate responsibilities. `ui-ux-audit` is the orchestrator; it never does a specialist's job and hands each layer a structured, traceable package.
+How the five layers work together. `ui-ux-audit` is the orchestrator; it never does a specialist's job and hands each layer a structured, traceable package.
 
 ```
             ┌──────────── 1 UI/UX Audit (orchestrator) ────────────┐
@@ -25,14 +50,6 @@ Five layers with separate responsibilities. `ui-ux-audit` is the orchestrator; i
                                   ▼
                         3 Playwright MCP (validation) ──▶ 1 (validation report)
 ```
-
-| Layer | Responsibility | Implemented by | Required |
-|---|---|---|---|
-| 1 UI/UX Audit | Workflow, dependencies, quality gates, approvals, reports, specs, validation coordination | this skill (`/ui-ux-audit`) | Yes |
-| 2 Frontend Design | Art direction, visual identity, typography, color, layout, component aesthetics, design system | `frontend-design` skill, official plugin | Yes |
-| 3 Playwright MCP | Navigation, routes, interaction, screenshots, responsive checks, before/after validation | Playwright MCP tools `mcp__<server>__browser_*` | Yes |
-| 4 SDD / OpenSpec | Approved decisions turned into specs, tasks, acceptance criteria, status tracking | your project's framework if it has one, otherwise the skill's templates | Only for specification and implementation |
-| 5 Frontend Implementation | Applying approved tasks while preserving logic, APIs and routes | Claude in Mode C | Only with your approval |
 
 Rules the orchestrator follows:
 - Every run starts by verifying the specialists (Gate G1) and shows their status: missing, detected, succeeded, failed.
