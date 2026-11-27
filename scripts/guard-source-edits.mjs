@@ -1,15 +1,19 @@
 #!/usr/bin/env node
-// PreToolUse guard for the ui-ux-audit skill. Zero dependencies.
+// PreToolUse guard for the ux-ui-audit skill. Zero dependencies.
 //
 // Registered by SKILL.md frontmatter for Edit|MultiEdit|Write|NotebookEdit.
-// Blocks file edits outside <project>/.ui-audit/ while the audit is in Mode A (audit only).
+// Enforces the write limits of the skill's modes for Claude's file-editing tools.
 //
 // Decision table (project = $CLAUDE_PROJECT_DIR or the hook input's cwd):
-//   no .ui-audit/AUDIT_STATE.md in project  -> allow (no audit in progress)
-//   target inside <project>/.ui-audit/       -> allow
-//   Mode: B (approved implementation)        -> allow (task scope is enforced by the skill's instructions)
-//   Mode: off (audit finished/paused)        -> allow
-//   anything else (Mode: A or unreadable)    -> deny, exit 2 with a reason on stderr
+//   no .ui-audit/AUDIT_STATE.md in project            -> allow (no audit in progress)
+//   target inside <project>/.ui-audit/                 -> allow
+//   Mode: A (audit)                                    -> deny
+//   Mode: B (specification), target inside an approved
+//           path listed in "- SDD paths: a, b"         -> allow, otherwise deny
+//   Mode: C (implementation)                           -> allow (task scope is enforced by the skill's instructions)
+//   Mode: off (audit finished)                         -> allow
+//   missing or unreadable mode                         -> treated as Mode A
+// Denials exit 2 with a reason on stderr.
 //
 // Every decision is appended to .ui-audit/guard.log so Phase 0 can confirm the guard is active.
 // It never reads file contents and never touches anything outside .ui-audit/guard.log.
@@ -59,21 +63,35 @@ if (inside(abs, auditDir)) {
 }
 
 let mode = 'A';
+let sddPaths = [];
 try {
-  const m = readFileSync(stateFile, 'utf8').match(/^\s*-\s*Mode:\s*(A|B|off)\b/im);
+  const state = readFileSync(stateFile, 'utf8');
+  const m = state.match(/^\s*-\s*Mode:\s*(A|B|C|off)\b/im);
   if (m) mode = m[1].toUpperCase() === 'OFF' ? 'off' : m[1].toUpperCase();
-} catch { /* unreadable state: treat as audit-only */ }
+  const p = state.match(/^\s*-\s*SDD paths:\s*(.+)$/im);
+  if (p && !/^\(?none\)?$/i.test(p[1].trim())) {
+    sddPaths = p[1].split(',').map((x) => x.trim().replace(/^`|`$/g, '')).filter(Boolean)
+      .map((x) => path.resolve(project, x))
+      .filter((x) => inside(x, project) && !inside(project, x)); // only real subfolders of the project
+  }
+} catch { /* unreadable state: treat as Mode A */ }
 
-if (mode === 'B' || mode === 'off') {
+if (mode === 'C' || mode === 'off') {
   log('allow', `Mode ${mode}`);
   process.exit(0);
 }
+if (mode === 'B' && sddPaths.some((d) => inside(abs, d))) {
+  log('allow', 'Mode B, approved SDD path');
+  process.exit(0);
+}
 
-log('deny', 'Mode A (audit only)');
+const why = mode === 'B'
+  ? 'Mode B (specification): only .ui-audit/ and the approved SDD paths may be written'
+  : 'Mode A (audit): only .ui-audit/ may be written';
+log('deny', why);
 process.stderr.write(
-  `ui-ux-audit guard: blocked ${tool} on ${path.relative(project, abs)}. ` +
-  `The audit is in Mode A (audit only), so only files inside .ui-audit/ may be written. ` +
-  `Implementation needs the user's explicit approval of specific tasks (Mode B). ` +
+  `ux-ui-audit guard: blocked ${tool} on ${path.relative(project, abs)}. ${why}. ` +
+  `Source changes need Mode C, which requires the user's explicit approval of specific TASK ids. ` +
   `If the audit is finished, the user can ask to set "Mode: off" in .ui-audit/AUDIT_STATE.md.\n`
 );
 process.exit(2);

@@ -1,48 +1,69 @@
-# ui-ux-audit
+# UX/UI Audit Ecosystem
 
-**Skill de Claude Code para auditar, dar dirección de arte y rediseñar la UI/UX de aplicaciones web que ya existen.**
+**Un flujo de Claude Code en cinco capas para auditar, dar dirección de arte, especificar, rediseñar y validar la UX/UI de aplicaciones web que ya existen.**
 
 [Read in English](README.md) · Licencia: [CC BY-NC 4.0](LICENSE) (uso libre sin fines comerciales)
 
-Con `ui-ux-audit`, Claude Code trabaja como un diseñador de producto senior y un ingeniero de design systems sobre un proyecto que ya tenés andando. Lee el código fuente, recorre la app en ejecución con [Playwright MCP](https://github.com/microsoft/playwright-mcp), puntúa diez dimensiones de calidad, propone tres direcciones de diseño bien distintas y convierte la que elijas en una especificación de design system y en tareas chicas, listas para SDD.
+```
+┌──────────────────────────────────────────────────┐
+│ 1. UX/UI Audit                                   │
+│    Orquestación y Quality Gates                  │
+├──────────────────────────────────────────────────┤
+│ 2. Frontend Design                               │
+│    Art direction                                 │
+├──────────────────────────────────────────────────┤
+│ 3. Playwright MCP                                │
+│    Browser inspection                            │
+├──────────────────────────────────────────────────┤
+│ 4. SDD / OpenSpec                                │
+│    Specifications · Tasks · Acceptance Criteria  │
+├──────────────────────────────────────────────────┤
+│ 5. Frontend Implementation                       │
+│    Approved changes · Testing · Regression       │
+└──────────────────────────────────────────────────┘
+```
 
-No modifica tu código salvo que lo apruebes de forma explícita, y verifica el resultado comparando capturas de antes y después.
+| Capa | Qué hace | Con qué | ¿Obligatoria? |
+|---|---|---|---|
+| **1. UX/UI Audit** | Orquestación y quality gates: flujo, verificación de dependencias, aprobaciones, informes, trazabilidad | la skill `ux-ui-audit` (este repo) | Sí |
+| **2. Frontend Design** | Dirección de arte: identidad visual, tipografía, color, layout, estética de componentes, design system | el plugin `frontend-design` de Anthropic | Sí |
+| **3. Playwright MCP** | Inspección en el navegador: rutas reales, anchos, interacciones, capturas, validación antes/después | `@playwright/mcp` de Microsoft | Sí |
+| **4. SDD / OpenSpec** | Especificaciones, tareas y criterios de aceptación, solo a partir de decisiones aprobadas | el framework de SDD de tu proyecto, o las plantillas incluidas | Solo para especificar e implementar |
+| **5. Frontend Implementation** | Cambios aprobados, tests y control de regresiones, solo con tu aprobación explícita | Claude Code en modo implementación | Solo con tu aprobación |
+
+El punto de entrada es la skill `ux-ui-audit`. Lee el código fuente, recorre la app en ejecución con Playwright MCP, consulta a frontend-design para la dirección de arte, puntúa diez dimensiones de calidad, propone tres direcciones de diseño bien distintas y convierte la que elijas en un design system y en tareas listas para SDD. No modifica tu código salvo que lo apruebes de forma explícita, y valida el resultado con capturas de antes y después.
 
 ## Arquitectura
-`ui-ux-audit` funciona como orquestador. Lleva el flujo de trabajo y le delega dos tareas a especialistas obligatorios, a los que les pasa el contexto que necesitan:
+Cómo trabajan juntas las cinco capas. `ux-ui-audit` es el orquestador: nunca hace el trabajo de un especialista y le pasa a cada capa un paquete estructurado y trazable.
 
 ```
-                 ┌──────────────────────────────────────────────┐
-                 │  ui-ux-audit  (orquestador)                  │
-                 │  relevamiento · aprobaciones · informes · SDD│
-                 └───────┬───────────────────────────┬──────────┘
-          plan de        │                           │   brief: contexto,
-          recorrido:     ▼                           ▼   capturas, hallazgos,
-          URL, rutas,    ┌─────────────────┐  ┌─────────────────┐  restricciones
-          anchos         │ Playwright MCP  │  │ frontend-design │
-                         │ cómo se ve y se │  │ cómo debería    │
-                         │ comporta        │  │ verse y sentirse│
-                         └─────────────────┘  └─────────────────┘
-          capturas, snapshots, consola         crítica, 3 direcciones,
-                                               estética del design system
+            ┌──────────── 1 UX/UI Audit (orquestador) ─────────────┐
+  plan de   ▼   Contrato A                         brief  ▼   Contrato B
+  recorrido 3 Playwright MCP ───▶ 1 ◀────────── 2 Frontend Design
+                                  │ Contrato C (solo decisiones aprobadas)
+                                  ▼
+                        4 SDD / OpenSpec (o las plantillas propias)
+                                  │ Contrato D
+                                  ▼
+                        5 Implementación frontend (Modo C)
+                                  │ Contrato E
+                                  ▼
+                        3 Playwright MCP (validación) ──▶ 1 (informe de validación)
 ```
-
-| Capacidad | Responsabilidad | ¿Obligatoria? | Cómo se invoca |
-|---|---|---|---|
-| `ui-ux-audit` | Orquestar el flujo de trabajo | Sí | `/ui-ux-audit`, o automáticamente |
-| `frontend-design` | Dirección de arte y diseño visual | Sí | Herramienta Skill, `frontend-design:frontend-design` (plugin oficial) |
-| Playwright MCP | Inspección y validación en el navegador | Sí | Herramientas MCP `mcp__<servidor>__browser_*` |
 
 Reglas que sigue el orquestador:
-- Cada ejecución empieza verificando los dos especialistas y muestra su estado (faltante, detectado, exitoso, con error).
-- Detectar una herramienta no es invocarla, e invocarla no significa que haya funcionado. Un informe solo dice que se usó un especialista si el registro de uso tiene una llamada exitosa.
-- Si falta un especialista, las fases que dependen de él figuran como bloqueadas. La skill no completa ese hueco con razonamiento genérico ni instala nada sin preguntar.
+- Cada ejecución empieza verificando los especialistas (gate G1) y muestra su estado: faltante, detectado, exitoso o con error.
+- Detectar una herramienta no es invocarla, e invocarla no significa que haya funcionado. Un informe solo dice que se usó un especialista si el registro tiene una llamada exitosa, y un gate solo figura como aprobado si hay evidencia.
+- Si falta un especialista, las fases que dependen de él figuran como bloqueadas. La skill no completa ese hueco con razonamiento genérico ni instala nada sin preguntar. OpenSpec nunca lo instala.
 
-- Funciona con cualquier stack: React, Next.js, Vue, Nuxt, Svelte, Angular, Astro, templates del lado del servidor…
-- Respeta lo que ya hay: tu forma de manejar tokens, tu librería de componentes, tus convenciones y tu framework de SDD.
-- Se detiene en puntos de aprobación, así que las decisiones del rediseño siempre las tomás vos.
+### Trazabilidad
+Cada hallazgo relevante se puede seguir de punta a punta con identificadores estables:
 
----
+`AUD-001` jerarquía de botones inconsistente → `DES-001` unificar botones primarios y secundarios → `SPEC-001` tokens y variantes del botón → `TASK-001` actualizar el componente Button compartido → `VAL-001` consistencia visual verificada en las rutas afectadas.
+
+Los hallazgos tienen prioridad (Crítica, Alta, Media, Baja) y se clasifican como `usability` (problema de uso) o `preference` (gusto visual). Una preferencia nunca es Crítica ni Alta, y no toda observación cosmética tiene que terminar en una tarea. La matriz queda en `.ui-audit/TRACEABILITY.md`.
+
+Los cinco contratos (A a E), las reglas de los identificadores y los gates están en [references/integration-contracts.md](references/integration-contracts.md).
 
 ## Contenido
 1. [Qué hace](#qué-hace)
@@ -98,30 +119,30 @@ Claude Code busca skills en `~/.claude/skills/<nombre>/SKILL.md` (personales, pa
 ### Instalación personal (recomendada)
 macOS / Linux:
 ```bash
-git clone https://github.com/MartinezCE/ui-ux-audit.git ~/.claude/skills/ui-ux-audit
+git clone https://github.com/MartinezCE/ux-ui-audit.git ~/.claude/skills/ux-ui-audit
 ```
 
 Windows (PowerShell):
 ```powershell
-git clone https://github.com/MartinezCE/ui-ux-audit.git "$env:USERPROFILE\.claude\skills\ui-ux-audit"
+git clone https://github.com/MartinezCE/ux-ui-audit.git "$env:USERPROFILE\.claude\skills\ux-ui-audit"
 ```
 
 ### Instalación en un proyecto
 Desde la raíz del proyecto que querés auditar:
 ```bash
-git clone https://github.com/MartinezCE/ui-ux-audit.git .claude/skills/ui-ux-audit
-rm -rf .claude/skills/ui-ux-audit/.git   # opcional: para commitear la skill como archivos comunes
+git clone https://github.com/MartinezCE/ux-ui-audit.git .claude/skills/ux-ui-audit
+rm -rf .claude/skills/ux-ui-audit/.git   # opcional: para commitear la skill como archivos comunes
 ```
 Si preferís seguir las actualizaciones, sumala como submódulo:
 ```bash
-git submodule add https://github.com/MartinezCE/ui-ux-audit.git .claude/skills/ui-ux-audit
+git submodule add https://github.com/MartinezCE/ux-ui-audit.git .claude/skills/ux-ui-audit
 ```
 
 ### Sin git
-Descargá el ZIP desde **Code → Download ZIP**, descomprimilo, renombrá la carpeta a `ui-ux-audit` y movela a alguna de las ubicaciones de arriba.
+Descargá el ZIP desde **Code → Download ZIP**, descomprimilo, renombrá la carpeta a `ux-ui-audit` y movela a alguna de las ubicaciones de arriba.
 
 ### Comprobar que cargó
-Abrí `claude` y escribí `/`. Tiene que aparecer `ui-ux-audit` en la lista. Las skills se detectan en el momento; si no aparece, reiniciá la sesión.
+Abrí `claude` y escribí `/`. Tiene que aparecer `ux-ui-audit` en la lista. Las skills se detectan en el momento; si no aparece, reiniciá la sesión.
 
 > **Para claude.ai o la API de Skills:** el frontmatter usa dos campos que solo entiende Claude Code (`when_to_use` y `argument-hint`). Borrá esas dos líneas de `SKILL.md` antes de subirla a otro lado, porque ahí los campos desconocidos dan error.
 
@@ -179,7 +200,7 @@ claude
 ```
 Después, dentro de Claude Code:
 ```text
-/ui-ux-audit audit
+/ux-ui-audit audit
 ```
 Cuando termine la auditoría, pedí las direcciones, elegí una y seguí paso a paso (ver [Uso](#uso)).
 
@@ -188,37 +209,37 @@ El primer argumento indica hasta dónde avanza la skill; lo que escribas despué
 
 | Comando | Qué hace |
 |---|---|
-| `/ui-ux-audit` | Retoma desde el estado guardado y avanza hasta el próximo punto de aprobación |
-| `/ui-ux-audit audit` | Solo relevamiento y auditoría, y se detiene |
-| `/ui-ux-audit directions` | Propone las tres direcciones (reutiliza una auditoría existente) y espera tu elección |
-| `/ui-ux-audit design-system` | Arma el design system de la dirección que elegiste |
-| `/ui-ux-audit spec` | Escribe las tareas de implementación |
-| `/ui-ux-audit implement <tareas>` | Implementa las tareas que apruebes y después valida |
-| `/ui-ux-audit validate` | Vuelve a capturar las pantallas y las compara con las originales |
+| `/ux-ui-audit` | Retoma desde el estado guardado y avanza hasta el próximo punto de aprobación |
+| `/ux-ui-audit audit` | Solo relevamiento y auditoría, y se detiene |
+| `/ux-ui-audit directions` | Propone las tres direcciones (reutiliza una auditoría existente) y espera tu elección |
+| `/ux-ui-audit design-system` | Arma el design system de la dirección que elegiste |
+| `/ux-ui-audit spec` | Escribe las tareas de implementación |
+| `/ux-ui-audit implement <tareas>` | Implementa las tareas que apruebes y después valida |
+| `/ux-ui-audit validate` | Vuelve a capturar las pantallas y las compara con las originales |
 
 Ejemplos:
 ```text
-/ui-ux-audit audit Auditá la aplicación actual sin modificar el código.
-/ui-ux-audit directions Recorré la aplicación y proponé tres direcciones completas de rebranding.
-/ui-ux-audit design-system Usá la dirección 2, pero con la tipografía de la 3.
-/ui-ux-audit implement Implementá la dirección aprobada con las especificaciones generadas, tareas UI-001 a UI-004.
+/ux-ui-audit audit Auditá la aplicación actual sin modificar el código.
+/ux-ui-audit directions Recorré la aplicación y proponé tres direcciones completas de rebranding.
+/ux-ui-audit design-system Usá la dirección 2, pero con la tipografía de la 3.
+/ux-ui-audit implement Implementá la dirección aprobada con las especificaciones generadas, tareas TASK-001 a TASK-004.
 ```
 
 Claude también puede activar la skill por su cuenta si le pedís algo como "revisá la UX de esta app" o "este dashboard se ve viejo, proponé un rediseño". En ese caso también trabaja en modo solo auditoría.
 
 ## Flujo y puntos de aprobación
-| Fase | Qué pasa | Especialista |
-|---|---|---|
-| 0 Verificación de dependencias | Detecta y prueba los dos especialistas, revisa el guard de ediciones e informa qué fases quedan bloqueadas | los dos (prueba) |
-| 1 Relevamiento del proyecto | Framework, ruteo, componentes, estilos, tokens, librerías, recursos, convenciones y SDD | — |
-| 2 Inspección real en el navegador | Rutas × 1440/1280/768/390 px × estados, capturas, snapshots, consola, inventario de estilos | Playwright MCP |
-| 3 Consulta a Frontend Design | Crítica del diseño actual a partir del contexto, las capturas y los hallazgos | frontend-design |
-| 4 Informe de auditoría combinado | Evidencia + crítica de diseño + código + UX + accesibilidad + responsive, con puntajes | — |
-| 5 Tres direcciones de diseño | Refinamiento conservador, modernización y rebranding completo; el orquestador revisa contraste, diferencias y factibilidad | frontend-design |
-| 6 ⛔ Aprobación | Elegís una dirección | — |
-| 7 Design system y SDD | Tokens, especificación de componentes, reglas responsive y de accesibilidad, tareas con criterios de aceptación | frontend-design (estética) |
-| 8 ⛔ Implementación aprobada | Solo las tareas que nombres | — |
-| 9 Validación visual | Las mismas rutas, anchos y estados otra vez, comparación antes/después, regresiones | Playwright MCP |
+| Fase | Qué pasa | Capa | Modo | Gate |
+|---|---|---|---|---|
+| 0 Verificación de dependencias | Detecta y prueba los especialistas, revisa el guard de ediciones e informa qué fases quedan bloqueadas | 1 (+2, 3 prueba) | cualquiera | G1 Dependencias |
+| 1 Relevamiento del proyecto | Framework, ruteo, componentes, estilos, tokens, librerías, recursos, convenciones y framework de SDD | 1 | A | |
+| 2 Inspección real en el navegador | Rutas × 1440/1280/768/390 px × estados, capturas, snapshots, consola, inventario de estilos (Contrato A) | 3 | A | |
+| 3 Consulta a Frontend Design | Crítica del diseño actual (Contrato B) | 2 | A | |
+| 4 Informe de auditoría combinado | Hallazgos `AUD` con prioridad y tipo, puntajes, accesibilidad, responsive | 1 | A | G2 Evidencia |
+| 5 Tres direcciones de diseño | Refinamiento conservador, modernización y rebranding completo, revisadas por el orquestador | 2 | A | G3 Dirección de arte |
+| 6 ⛔ Aprobación | Elegís una dirección, que se convierte en decisiones `DES` | 1 | A | G4 Aprobación |
+| 7 Design system y especificación | Tokens, componentes, ítems `SPEC` y `TASK` con criterios de aceptación (Contratos C y D) | 2 + 4 | B | G5 Especificación |
+| 8 ⛔ Implementación aprobada | Solo las `TASK` que nombres | 5 | C | G6 Implementación |
+| 9 Validación visual | Mismas rutas, anchos y estados, comparación antes/después, resultados `VAL` (Contrato E) | 3 | C | G7 Validación |
 
 La skill se frena y te espera:
 - antes de levantar un servidor de desarrollo o cualquier otro proceso
@@ -226,12 +247,16 @@ La skill se frena y te espera:
 - antes de escribir en las carpetas de especificaciones de tu proyecto
 - antes de implementar, y solo para las tareas que nombres
 
-El progreso queda en `.ui-audit/AUDIT_STATE.md`, así que podés cerrar la sesión y seguir otro día.
+La aprobación nunca se genera sola: pedir "auditá e implementá todo" en el primer mensaje no aprueba ningún gate. El progreso, los gates y el registro de herramientas quedan en `.ui-audit/AUDIT_STATE.md`, así que podés cerrar la sesión y seguir otro día.
 
 ## Modos de trabajo
-**Modo A, solo auditoría (por defecto).** Lee el código, recorre la app, saca capturas y escribe informes y especificaciones. Nunca edita código, configuración, lockfiles ni dependencias. La única carpeta en la que escribe es `.ui-audit/`.
+| Modo | Qué hace | Dónde puede escribir |
+|---|---|---|
+| **A, Auditoría** (por defecto) | Lee el código, recorre la app, saca capturas, revisa el diseño, escribe el informe y las tres direcciones | solo en `.ui-audit/` |
+| **B, Especificación** | Convierte la dirección aprobada en design system, artefactos de SDD y plan de implementación | `.ui-audit/` y las carpetas de SDD que apruebes |
+| **C, Implementación** | Implementa las tareas aprobadas, corre tus tests, valida con Playwright e informa regresiones | los archivos de las tareas aprobadas |
 
-**Modo B, implementación aprobada.** Solo si lo autorizás de forma explícita en la conversación actual. Antes de cada cambio importante lee los archivos afectados y explica el plan. Reutiliza los componentes existentes, actualiza los tokens y no toca la lógica de negocio, los contratos de API, las rutas, los permisos, los flujos, las validaciones, el manejo de estado, los eventos de analytics ni los test ids. Después de cada tarea corre tu lint, el chequeo de tipos y los tests que ya tenés, y revisa las pantallas.
+Los modos nunca cambian solos. El Modo B empieza cuando elegís una dirección y pedís la especificación; el C, solo cuando nombrás las `TASK` a implementar. En el Modo C, antes de cada cambio lee los archivos afectados y explica el plan, reutiliza los componentes existentes y no toca la lógica de negocio, los contratos de API, las rutas, los permisos, los flujos, las validaciones, el manejo de estado, los eventos de analytics ni los test ids. Después de validar vuelve al Modo B.
 
 ## Qué genera
 Todo queda en `.ui-audit/`, en la raíz del proyecto auditado:
@@ -246,7 +271,8 @@ Todo queda en `.ui-audit/`, en la raíz del proyecto auditado:
 ├── 04-audit-report.md                  puntajes, hallazgos, accesibilidad, tabla responsive
 ├── 05-design-directions.md             tres direcciones con paletas, tipografía y ejemplos
 ├── 07-design-system-spec.md            tokens y guías de componentes
-├── 07-implementation-spec.md           tareas UI-001… (o los archivos de tu framework de SDD)
+├── 07-implementation-spec.md           ítems SPEC y TASK (o los archivos de tu framework de SDD)
+├── TRACEABILITY.md                     matriz AUD → DES → SPEC → TASK → VAL
 ├── 09-validation-report.md             comparación antes/después y criterios cumplidos
 ├── guard.log                           decisiones del guard de ediciones
 ├── screenshots/
@@ -259,16 +285,17 @@ Todo queda en `.ui-audit/`, en la raíz del proyecto auditado:
 Antes de sumar `.ui-audit/` a tu `.gitignore`, la skill te pregunta.
 
 ## Integración con SDD
-La skill detecta si el proyecto ya usa desarrollo guiado por especificaciones y escribe en ese formato, en lugar de armar una especificación paralela:
+El SDD es opcional y una auditoría visual nunca lo necesita. En el Modo B la skill detecta el framework que ya usa tu proyecto y escribe en su formato. Nunca instala uno ni arma un segundo sistema de especificaciones.
 
 | Framework | Cómo lo detecta | Qué genera |
 |---|---|---|
-| OpenSpec | `openspec/` | Propuesta de cambio con la estructura de OpenSpec |
-| Specs estilo Kiro | `specs/<feature>/requirements.md`, `design.md`, `tasks.md` | `specs/ui-redesign-<slug>/` con los mismos tres archivos |
-| spec-kit | `.specify/` | Artefactos según sus plantillas |
+| OpenSpec | `openspec/` con `specs/` o `changes/` | un cambio en `openspec/changes/<change-id>/` (`proposal.md`, `design.md`, `tasks.md` y deltas de specs), siguiendo tus cambios existentes |
+| spec-kit | `.specify/`, `specs/NNN-<feature>/` | un `specs/NNN-ui-redesign/` nuevo con la misma estructura |
+| Specs estilo Kiro | `.kiro/specs/` o `specs/<feature>/requirements.md`, `design.md`, `tasks.md` | `ui-redesign-<slug>/` con los mismos tres archivos y la misma sintaxis de requisitos |
+| Otro (ADRs, `docs/specs`) | documentado en README, CLAUDE.md o AGENTS.md | la convención documentada |
 | Ninguno | | `.ui-audit/07-implementation-spec.md` |
 
-Escribir en tus carpetas de especificaciones cuenta como un cambio en el proyecto, así que primero te pregunta.
+Escribir en tus carpetas de especificaciones cuenta como un cambio en el proyecto, así que primero te pregunta, y el guard solo habilita las carpetas que aprobaste. `.ui-audit/TRACEABILITY.md` mantiene la referencia cruzada de AUD a VAL en cualquier caso.
 
 ## Scripts
 Ninguno tiene dependencias.
@@ -284,7 +311,7 @@ Si algún par no llega a AA, termina con código 1, así que también sirve en C
 
 **`scripts/style-inventory.js`** es una función que se le pasa a `browser_evaluate` de Playwright MCP. Devuelve las fuentes, tamaños, colores, radios, sombras y espaciados que la página usa de verdad, los pares de texto y fondo para medir contraste, los elementos interactivos de menos de 24×24 px, el scroll horizontal, la jerarquía de títulos y las imágenes sin `alt`.
 
-**`scripts/guard-source-edits.mjs`** es un hook `PreToolUse` declarado en `SKILL.md`. Desde que se usa la skill, bloquea Edit, Write y NotebookEdit fuera de `.ui-audit/` mientras `AUDIT_STATE.md` diga `Mode: A`, y anota cada decisión en `.ui-audit/guard.log`. Cuando aprobás tareas, la skill pasa a `Mode: B`. Cuando termina la auditoría, pedile que ponga `Mode: off`, porque los hooks de una skill quedan activos hasta el final de la sesión.
+**`scripts/guard-source-edits.mjs`** es un hook `PreToolUse` declarado en `SKILL.md`. Bloquea Edit, Write y NotebookEdit fuera de lo que permite el modo actual: `.ui-audit/` en el Modo A, más las carpetas de SDD aprobadas en el B y los archivos de las tareas aprobadas en el C. Anota cada decisión en `.ui-audit/guard.log`. Cuando termina la auditoría, pedile que ponga `Mode: off`, porque los hooks de una skill quedan activos hasta el final de la sesión.
 
 ## Seguridad
 - No muestra en el chat ni guarda en archivos credenciales, API keys, tokens ni cookies.
@@ -303,11 +330,11 @@ Si algún par no llega a AA, termina con código 1, así que también sirve en C
 - Las fuentes y recursos que sugieren las direcciones requieren revisar su licencia.
 - El guard cubre las herramientas de edición de archivos de Claude, no los comandos de shell; en modo auditoría, que no se escriba con Bash depende solo de las instrucciones. El comando del hook usa `${CLAUDE_SKILL_DIR}`: si tu shell no la resuelve (por ejemplo PowerShell sin Git Bash), el hook no bloquea nada y la fase 0 informa el guard como faltante.
 - El flujo se probó contra `@playwright/mcp` 0.0.68 y el código del plugin oficial frontend-design 1.1.1, no contra todas las versiones.
-- Una auditoría larga consume bastante contexto. Los informes se guardan en archivos y las respuestas en el chat son cortas; podés retomar cuando quieras con `/ui-ux-audit`.
+- Una auditoría larga consume bastante contexto. Los informes se guardan en archivos y las respuestas en el chat son cortas; podés retomar cuando quieras con `/ux-ui-audit`.
 
 ## Estructura del repo
 ```
-ui-ux-audit/
+ux-ui-audit/
 ├── SKILL.md                     punto de entrada: flujo, aprobaciones, modos, seguridad
 ├── README.md / README.es.md
 ├── LICENSE                      CC BY-NC 4.0
@@ -319,7 +346,8 @@ ui-ux-audit/
 │   ├── visual-audit-checklist.md
 │   ├── branding-guidelines.md
 │   ├── frontend-implementation-guidelines.md
-│   └── orchestration.md         detección, invocación y briefs de los especialistas, registro de uso
+│   ├── orchestration.md         detección, invocación y briefs de los especialistas, registro de uso
+│   └── integration-contracts.md capas, contratos A a E, identificadores, trazabilidad, gates, SDD
 ├── templates/
 │   ├── audit-report.md
 │   ├── design-proposal.md
@@ -329,19 +357,19 @@ ui-ux-audit/
 └── scripts/
     ├── contrast.mjs
     ├── style-inventory.js
-    └── guard-source-edits.mjs   hook PreToolUse del modo solo auditoría
+    └── guard-source-edits.mjs   hook PreToolUse: límites de escritura por modo
 ```
 `SKILL.md` es corto a propósito. Claude lee las referencias y plantillas solo cuando una fase las necesita.
 
 ## Actualizar y desinstalar
 ```bash
 # actualizar
-git -C ~/.claude/skills/ui-ux-audit pull
+git -C ~/.claude/skills/ux-ui-audit pull
 
 # desinstalar
-rm -rf ~/.claude/skills/ui-ux-audit
+rm -rf ~/.claude/skills/ux-ui-audit
 ```
-En Windows usá `"$env:USERPROFILE\.claude\skills\ui-ux-audit"` como ruta y `Remove-Item -Recurse -Force` para desinstalar.
+En Windows usá `"$env:USERPROFILE\.claude\skills\ux-ui-audit"` como ruta y `Remove-Item -Recurse -Force` para desinstalar.
 
 ## Contribuir
 Los issues y pull requests son bienvenidos. Al contribuir, aceptás que tu aporte quede bajo la misma licencia CC BY-NC 4.0. Sirven especialmente:
