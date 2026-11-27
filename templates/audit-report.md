@@ -1,4 +1,4 @@
-# UI/UX Audit Report — {{Product name}}
+# UX/UI Audit Report — {{Product name}}
 
 - Date: {{YYYY-MM-DD}}
 - Mode: Audit only

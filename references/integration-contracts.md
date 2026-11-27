@@ -4,14 +4,14 @@ The ecosystem has five layers. Each hands the next one a structured, traceable p
 
 | Layer | Role | Implemented by | Required |
 |---|---|---|---|
-| 1 UI/UX Audit | Orchestrator: workflow, dependencies, gates, reports, approvals, specs, validation coordination | this skill | yes |
+| 1 UX/UI Audit | Orchestrator: workflow, dependencies, gates, reports, approvals, specs, validation coordination | this skill | yes |
 | 2 Frontend Design | Art direction and visual design | `frontend-design` skill (official plugin) | yes for Phases 3, 5, 7a |
 | 3 Playwright MCP | Real browser inspection and validation | Playwright MCP server | yes for Phases 2, 9 |
 | 4 SDD / OpenSpec | Specification and implementation planning | the project's existing SDD framework, else this skill's templates | no (only for Mode B/C) |
 | 5 Frontend Implementation | Execution of approved changes | Claude in Mode C, following [frontend-implementation-guidelines.md](frontend-implementation-guidelines.md#3-implementation-rules) | only in Mode C |
 
 ```
-            ┌──────────── 1 UI/UX Audit (orchestrator) ────────────┐
+            ┌──────────── 1 UX/UI Audit (orchestrator) ────────────┐
             │                                                      │
   run plan  ▼   Contract A                         brief  ▼   Contract B
      3 Playwright MCP ──────────▶ 1 ◀────────── 2 Frontend Design
@@ -63,7 +63,7 @@ Task statuses: `planned` → `approved` → `in progress` → `done` → `valida
 
 ## 2. Contracts
 
-### Contract A — Playwright MCP → UI/UX Audit
+### Contract A — Playwright MCP → UX/UI Audit
 Producer: the orchestrator, from Playwright tool results only. File: `.ui-audit/02-browser-inspection.md` (baseline) and the "after" section in Phase 9.
 
 | Field | Content |
@@ -79,7 +79,7 @@ Producer: the orchestrator, from Playwright tool results only. File: `.ui-audit/
 
 Every observation names a screen, route or interaction. Observations are facts ("the Save button is 28px tall at 390px"), not recommendations.
 
-### Contract B — Frontend Design → UI/UX Audit
+### Contract B — Frontend Design → UX/UI Audit
 Producer: Claude following the loaded `frontend-design` guidance, recorded under the brief in `.ui-audit/03-frontend-design-consultation.md`.
 
 | Field | Phase 3 (critique) | Phase 5 (per direction) | Phase 7a (selected) |
@@ -97,7 +97,7 @@ Producer: Claude following the loaded `frontend-design` guidance, recorded under
 
 Each item is labelled **[observed]** (verified in Contract A evidence or code) or **[recommended]** (the specialist's proposal). Recommendations never overwrite observed facts.
 
-### Contract C — UI/UX Audit → SDD
+### Contract C — UX/UI Audit → SDD
 Producer: the orchestrator in Mode B, after Gate 4. Destination: the detected SDD framework (see §4) or `.ui-audit/07-implementation-spec.md`.
 
 | Field | Content |

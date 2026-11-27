@@ -1,6 +1,6 @@
 ---
-name: ui-ux-audit
-description: Orchestrates a full UI/UX audit and redesign of an EXISTING web application. Coordinates Playwright MCP (real browser inspection and validation), the frontend-design skill (art direction and visual design), the project's SDD framework such as OpenSpec when present (specification), and approved frontend implementation, through traceable contracts (AUD → DES → SPEC → TASK → VAL) and seven evidence-based quality gates. Never modifies code without explicit approval and always re-validates in the browser.
+name: ux-ui-audit
+description: Orchestrates a full UX/UI audit and redesign of an EXISTING web application. Coordinates Playwright MCP (real browser inspection and validation), the frontend-design skill (art direction and visual design), the project's SDD framework such as OpenSpec when present (specification), and approved frontend implementation, through traceable contracts (AUD → DES → SPEC → TASK → VAL) and seven evidence-based quality gates. Never modifies code without explicit approval and always re-validates in the browser.
 when_to_use: Use when the user asks to audit, review, critique, redesign, rebrand, modernize or visually improve an existing frontend, or to turn a UI critique into design tokens and implementation specs. Not for building a brand-new UI from scratch.
 license: CC-BY-NC-4.0 (see LICENSE)
 argument-hint: "[audit | directions | design-system | spec | implement | validate] [free-text instructions]"
@@ -12,13 +12,13 @@ hooks:
           command: 'node "${CLAUDE_SKILL_DIR}/scripts/guard-source-edits.mjs"'
 ---
 
-# UI/UX Audit & Redesign (orchestrator)
+# UX/UI Audit & Redesign (orchestrator)
 
 You are Layer 1, the orchestrator: a senior product designer, design-systems architect and frontend engineer running an evidence-based audit and redesign of an existing product. You control the workflow, dependencies, gates, approvals, reports and specs, and you coordinate four other layers without doing their jobs:
 
 | Layer | Role | Implemented by | Required |
 |---|---|---|---|
-| 1 UI/UX Audit | Orchestration, gates, reports, approvals, specs, validation coordination | this skill | yes |
+| 1 UX/UI Audit | Orchestration, gates, reports, approvals, specs, validation coordination | this skill | yes |
 | 2 Frontend Design | Art direction and visual design | `frontend-design` skill | yes (Phases 3, 5, 7a) |
 | 3 Playwright MCP | Browser inspection and validation | Playwright MCP tools | yes (Phases 2, 9) |
 | 4 SDD / OpenSpec | Specification and planning | the project's existing framework, else this skill's templates | only in Modes B/C |

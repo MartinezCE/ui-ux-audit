@@ -1,12 +1,12 @@
-# UI/UX Audit Ecosystem
+# UX/UI Audit Ecosystem
 
-**A five-layer Claude Code workflow to audit, art-direct, specify, redesign and validate the UI/UX of existing web applications.**
+**A five-layer Claude Code workflow to audit, art-direct, specify, redesign and validate the UX/UI of existing web applications.**
 
 [Leer en español](README.es.md) · License: [CC BY-NC 4.0](LICENSE) (free for non-commercial use)
 
 ```
 ┌──────────────────────────────────────────────────┐
-│ 1. UI/UX Audit                                   │
+│ 1. UX/UI Audit                                   │
 │    Orchestration · Quality Gates                 │
 ├──────────────────────────────────────────────────┤
 │ 2. Frontend Design                               │
@@ -25,19 +25,19 @@
 
 | Layer | What it does | Powered by | Required |
 |---|---|---|---|
-| **1. UI/UX Audit** | Orchestration and quality gates: workflow, dependency checks, approvals, audit reports, traceability | the `ui-ux-audit` skill (this repo) | Yes |
+| **1. UX/UI Audit** | Orchestration and quality gates: workflow, dependency checks, approvals, audit reports, traceability | the `ux-ui-audit` skill (this repo) | Yes |
 | **2. Frontend Design** | Art direction: visual identity, typography, color, layout, component aesthetics, design system | Anthropic's `frontend-design` plugin | Yes |
 | **3. Playwright MCP** | Browser inspection: real routes, viewports, interactions, screenshots, before/after validation | Microsoft's `@playwright/mcp` | Yes |
 | **4. SDD / OpenSpec** | Specifications, tasks and acceptance criteria from approved decisions only | your project's SDD framework, or the built-in templates | Only to specify and implement |
 | **5. Frontend Implementation** | Approved changes, testing and regression checks, only with your explicit approval | Claude Code in implementation mode | Only with your approval |
 
-The entry point is the `ui-ux-audit` skill. It reads your source code, inspects the running app through Playwright MCP, consults frontend-design for art direction, scores ten quality dimensions, proposes three clearly different design directions, and turns the one you approve into a design system and SDD-ready tasks. It does not touch your code unless you explicitly approve it, and it validates the result with before/after screenshots.
+The entry point is the `ux-ui-audit` skill. It reads your source code, inspects the running app through Playwright MCP, consults frontend-design for art direction, scores ten quality dimensions, proposes three clearly different design directions, and turns the one you approve into a design system and SDD-ready tasks. It does not touch your code unless you explicitly approve it, and it validates the result with before/after screenshots.
 
 ## Architecture
-How the five layers work together. `ui-ux-audit` is the orchestrator; it never does a specialist's job and hands each layer a structured, traceable package.
+How the five layers work together. `ux-ui-audit` is the orchestrator; it never does a specialist's job and hands each layer a structured, traceable package.
 
 ```
-            ┌──────────── 1 UI/UX Audit (orchestrator) ────────────┐
+            ┌──────────── 1 UX/UI Audit (orchestrator) ────────────┐
   run plan  ▼   Contract A                         brief  ▼   Contract B
      3 Playwright MCP ──────────▶ 1 ◀────────── 2 Frontend Design
                                   │ Contract C (approved decisions only)
@@ -119,30 +119,30 @@ Claude Code looks for skills in `~/.claude/skills/<name>/SKILL.md` (personal, ev
 ### Personal install (recommended)
 macOS / Linux:
 ```bash
-git clone https://github.com/MartinezCE/ui-ux-audit.git ~/.claude/skills/ui-ux-audit
+git clone https://github.com/MartinezCE/ux-ui-audit.git ~/.claude/skills/ux-ui-audit
 ```
 
 Windows (PowerShell):
 ```powershell
-git clone https://github.com/MartinezCE/ui-ux-audit.git "$env:USERPROFILE\.claude\skills\ui-ux-audit"
+git clone https://github.com/MartinezCE/ux-ui-audit.git "$env:USERPROFILE\.claude\skills\ux-ui-audit"
 ```
 
 ### Project install
 From the root of the project you want to audit:
 ```bash
-git clone https://github.com/MartinezCE/ui-ux-audit.git .claude/skills/ui-ux-audit
-rm -rf .claude/skills/ui-ux-audit/.git   # optional: commit the skill as plain files in your repo
+git clone https://github.com/MartinezCE/ux-ui-audit.git .claude/skills/ux-ui-audit
+rm -rf .claude/skills/ux-ui-audit/.git   # optional: commit the skill as plain files in your repo
 ```
 Or add it as a submodule if you prefer to track updates:
 ```bash
-git submodule add https://github.com/MartinezCE/ui-ux-audit.git .claude/skills/ui-ux-audit
+git submodule add https://github.com/MartinezCE/ux-ui-audit.git .claude/skills/ux-ui-audit
 ```
 
 ### Without git
-Download the ZIP from **Code → Download ZIP**, extract it, rename the folder to `ui-ux-audit` and move it to one of the locations above.
+Download the ZIP from **Code → Download ZIP**, extract it, rename the folder to `ux-ui-audit` and move it to one of the locations above.
 
 ### Check that it loaded
-Start `claude` and type `/`. You should see `ui-ux-audit` in the list. Skills are detected live; if it does not show up, restart the session.
+Start `claude` and type `/`. You should see `ux-ui-audit` in the list. Skills are detected live; if it does not show up, restart the session.
 
 > **claude.ai or the Skills API:** the frontmatter uses two fields that only Claude Code understands (`when_to_use`, `argument-hint`). Delete those two lines from `SKILL.md` before uploading it elsewhere, because other surfaces reject unknown keys.
 
@@ -200,7 +200,7 @@ claude
 ```
 Then, inside Claude Code:
 ```text
-/ui-ux-audit audit
+/ux-ui-audit audit
 ```
 After the audit, ask for the directions, pick one, and continue step by step (see [Usage](#usage)).
 
@@ -209,20 +209,20 @@ The first argument chooses how far the skill goes; anything after it is free tex
 
 | Command | What happens |
 |---|---|
-| `/ui-ux-audit` | Resumes from the saved state and runs until the next approval gate |
-| `/ui-ux-audit audit` | Discovery and audit only, then stops |
-| `/ui-ux-audit directions` | Proposes the three design directions (reuses an existing audit) and waits for your choice |
-| `/ui-ux-audit design-system` | Builds the design system for the direction you chose |
-| `/ui-ux-audit spec` | Writes the implementation tasks |
-| `/ui-ux-audit implement <tasks>` | Implements the tasks you approve, then validates |
-| `/ui-ux-audit validate` | Re-captures screens and compares them with the baseline |
+| `/ux-ui-audit` | Resumes from the saved state and runs until the next approval gate |
+| `/ux-ui-audit audit` | Discovery and audit only, then stops |
+| `/ux-ui-audit directions` | Proposes the three design directions (reuses an existing audit) and waits for your choice |
+| `/ux-ui-audit design-system` | Builds the design system for the direction you chose |
+| `/ux-ui-audit spec` | Writes the implementation tasks |
+| `/ux-ui-audit implement <tasks>` | Implements the tasks you approve, then validates |
+| `/ux-ui-audit validate` | Re-captures screens and compares them with the baseline |
 
 Examples:
 ```text
-/ui-ux-audit audit Audit the current application without modifying source code.
-/ui-ux-audit directions Inspect the application and propose three complete rebranding directions.
-/ui-ux-audit design-system Use direction 2, but with the typography of direction 3.
-/ui-ux-audit implement Implement the approved visual direction using the generated specifications, tasks TASK-001 to TASK-004.
+/ux-ui-audit audit Audit the current application without modifying source code.
+/ux-ui-audit directions Inspect the application and propose three complete rebranding directions.
+/ux-ui-audit design-system Use direction 2, but with the typography of direction 3.
+/ux-ui-audit implement Implement the approved visual direction using the generated specifications, tasks TASK-001 to TASK-004.
 ```
 
 Claude can also load the skill on its own when you ask something like "review the UX of this app" or "this dashboard looks dated, propose a redesign". In that case it also runs in audit-only mode.
@@ -330,11 +330,11 @@ It exits with code 1 when any pair fails AA, so you can use it in CI.
 - Fonts and assets suggested in the directions still need a license check.
 - The source-edit guard covers Claude's file-editing tools, not shell commands; Bash writes in audit mode are prevented by the instructions only. The hook command uses `${CLAUDE_SKILL_DIR}`; if your shell does not resolve it (for example PowerShell without Git Bash), the hook fails open and Phase 0 reports the guard as missing.
 - The full workflow was smoke-tested against `@playwright/mcp` 0.0.68 and the official frontend-design 1.1.1 sources, not against every version.
-- Long audits use a lot of context. Reports go to files and chat replies stay short; resume any time with `/ui-ux-audit`.
+- Long audits use a lot of context. Reports go to files and chat replies stay short; resume any time with `/ux-ui-audit`.
 
 ## Repository structure
 ```
-ui-ux-audit/
+ux-ui-audit/
 ├── SKILL.md                     entry point: workflow, gates, modes, safety
 ├── README.md / README.es.md
 ├── LICENSE                      CC BY-NC 4.0
@@ -364,12 +364,12 @@ ui-ux-audit/
 ## Updating and uninstalling
 ```bash
 # update
-git -C ~/.claude/skills/ui-ux-audit pull
+git -C ~/.claude/skills/ux-ui-audit pull
 
 # uninstall
-rm -rf ~/.claude/skills/ui-ux-audit
+rm -rf ~/.claude/skills/ux-ui-audit
 ```
-On Windows use `"$env:USERPROFILE\.claude\skills\ui-ux-audit"` as the path, and `Remove-Item -Recurse -Force` to uninstall.
+On Windows use `"$env:USERPROFILE\.claude\skills\ux-ui-audit"` as the path, and `Remove-Item -Recurse -Force` to uninstall.
 
 ## Contributing
 Issues and pull requests are welcome. By contributing you agree that your contribution is licensed under the same CC BY-NC 4.0 terms. Useful contributions:

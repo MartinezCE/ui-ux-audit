@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// PreToolUse guard for the ui-ux-audit skill. Zero dependencies.
+// PreToolUse guard for the ux-ui-audit skill. Zero dependencies.
 //
 // Registered by SKILL.md frontmatter for Edit|MultiEdit|Write|NotebookEdit.
 // Enforces the write limits of the skill's modes for Claude's file-editing tools.
@@ -90,7 +90,7 @@ const why = mode === 'B'
   : 'Mode A (audit): only .ui-audit/ may be written';
 log('deny', why);
 process.stderr.write(
-  `ui-ux-audit guard: blocked ${tool} on ${path.relative(project, abs)}. ${why}. ` +
+  `ux-ui-audit guard: blocked ${tool} on ${path.relative(project, abs)}. ${why}. ` +
   `Source changes need Mode C, which requires the user's explicit approval of specific TASK ids. ` +
   `If the audit is finished, the user can ask to set "Mode: off" in .ui-audit/AUDIT_STATE.md.\n`
 );

@@ -1,12 +1,12 @@
-# UI/UX Audit Ecosystem
+# UX/UI Audit Ecosystem
 
-**Un flujo de Claude Code en cinco capas para auditar, dar dirección de arte, especificar, rediseñar y validar la UI/UX de aplicaciones web que ya existen.**
+**Un flujo de Claude Code en cinco capas para auditar, dar dirección de arte, especificar, rediseñar y validar la UX/UI de aplicaciones web que ya existen.**
 
 [Read in English](README.md) · Licencia: [CC BY-NC 4.0](LICENSE) (uso libre sin fines comerciales)
 
 ```
 ┌──────────────────────────────────────────────────┐
-│ 1. UI/UX Audit                                   │
+│ 1. UX/UI Audit                                   │
 │    Orquestación y Quality Gates                  │
 ├──────────────────────────────────────────────────┤
 │ 2. Frontend Design                               │
@@ -25,19 +25,19 @@
 
 | Capa | Qué hace | Con qué | ¿Obligatoria? |
 |---|---|---|---|
-| **1. UI/UX Audit** | Orquestación y quality gates: flujo, verificación de dependencias, aprobaciones, informes, trazabilidad | la skill `ui-ux-audit` (este repo) | Sí |
+| **1. UX/UI Audit** | Orquestación y quality gates: flujo, verificación de dependencias, aprobaciones, informes, trazabilidad | la skill `ux-ui-audit` (este repo) | Sí |
 | **2. Frontend Design** | Dirección de arte: identidad visual, tipografía, color, layout, estética de componentes, design system | el plugin `frontend-design` de Anthropic | Sí |
 | **3. Playwright MCP** | Inspección en el navegador: rutas reales, anchos, interacciones, capturas, validación antes/después | `@playwright/mcp` de Microsoft | Sí |
 | **4. SDD / OpenSpec** | Especificaciones, tareas y criterios de aceptación, solo a partir de decisiones aprobadas | el framework de SDD de tu proyecto, o las plantillas incluidas | Solo para especificar e implementar |
 | **5. Frontend Implementation** | Cambios aprobados, tests y control de regresiones, solo con tu aprobación explícita | Claude Code en modo implementación | Solo con tu aprobación |
 
-El punto de entrada es la skill `ui-ux-audit`. Lee el código fuente, recorre la app en ejecución con Playwright MCP, consulta a frontend-design para la dirección de arte, puntúa diez dimensiones de calidad, propone tres direcciones de diseño bien distintas y convierte la que elijas en un design system y en tareas listas para SDD. No modifica tu código salvo que lo apruebes de forma explícita, y valida el resultado con capturas de antes y después.
+El punto de entrada es la skill `ux-ui-audit`. Lee el código fuente, recorre la app en ejecución con Playwright MCP, consulta a frontend-design para la dirección de arte, puntúa diez dimensiones de calidad, propone tres direcciones de diseño bien distintas y convierte la que elijas en un design system y en tareas listas para SDD. No modifica tu código salvo que lo apruebes de forma explícita, y valida el resultado con capturas de antes y después.
 
 ## Arquitectura
-Cómo trabajan juntas las cinco capas. `ui-ux-audit` es el orquestador: nunca hace el trabajo de un especialista y le pasa a cada capa un paquete estructurado y trazable.
+Cómo trabajan juntas las cinco capas. `ux-ui-audit` es el orquestador: nunca hace el trabajo de un especialista y le pasa a cada capa un paquete estructurado y trazable.
 
 ```
-            ┌──────────── 1 UI/UX Audit (orquestador) ─────────────┐
+            ┌──────────── 1 UX/UI Audit (orquestador) ─────────────┐
   plan de   ▼   Contrato A                         brief  ▼   Contrato B
   recorrido 3 Playwright MCP ───▶ 1 ◀────────── 2 Frontend Design
                                   │ Contrato C (solo decisiones aprobadas)
@@ -119,30 +119,30 @@ Claude Code busca skills en `~/.claude/skills/<nombre>/SKILL.md` (personales, pa
 ### Instalación personal (recomendada)
 macOS / Linux:
 ```bash
-git clone https://github.com/MartinezCE/ui-ux-audit.git ~/.claude/skills/ui-ux-audit
+git clone https://github.com/MartinezCE/ux-ui-audit.git ~/.claude/skills/ux-ui-audit
 ```
 
 Windows (PowerShell):
 ```powershell
-git clone https://github.com/MartinezCE/ui-ux-audit.git "$env:USERPROFILE\.claude\skills\ui-ux-audit"
+git clone https://github.com/MartinezCE/ux-ui-audit.git "$env:USERPROFILE\.claude\skills\ux-ui-audit"
 ```
 
 ### Instalación en un proyecto
 Desde la raíz del proyecto que querés auditar:
 ```bash
-git clone https://github.com/MartinezCE/ui-ux-audit.git .claude/skills/ui-ux-audit
-rm -rf .claude/skills/ui-ux-audit/.git   # opcional: para commitear la skill como archivos comunes
+git clone https://github.com/MartinezCE/ux-ui-audit.git .claude/skills/ux-ui-audit
+rm -rf .claude/skills/ux-ui-audit/.git   # opcional: para commitear la skill como archivos comunes
 ```
 Si preferís seguir las actualizaciones, sumala como submódulo:
 ```bash
-git submodule add https://github.com/MartinezCE/ui-ux-audit.git .claude/skills/ui-ux-audit
+git submodule add https://github.com/MartinezCE/ux-ui-audit.git .claude/skills/ux-ui-audit
 ```
 
 ### Sin git
-Descargá el ZIP desde **Code → Download ZIP**, descomprimilo, renombrá la carpeta a `ui-ux-audit` y movela a alguna de las ubicaciones de arriba.
+Descargá el ZIP desde **Code → Download ZIP**, descomprimilo, renombrá la carpeta a `ux-ui-audit` y movela a alguna de las ubicaciones de arriba.
 
 ### Comprobar que cargó
-Abrí `claude` y escribí `/`. Tiene que aparecer `ui-ux-audit` en la lista. Las skills se detectan en el momento; si no aparece, reiniciá la sesión.
+Abrí `claude` y escribí `/`. Tiene que aparecer `ux-ui-audit` en la lista. Las skills se detectan en el momento; si no aparece, reiniciá la sesión.
 
 > **Para claude.ai o la API de Skills:** el frontmatter usa dos campos que solo entiende Claude Code (`when_to_use` y `argument-hint`). Borrá esas dos líneas de `SKILL.md` antes de subirla a otro lado, porque ahí los campos desconocidos dan error.
 
@@ -200,7 +200,7 @@ claude
 ```
 Después, dentro de Claude Code:
 ```text
-/ui-ux-audit audit
+/ux-ui-audit audit
 ```
 Cuando termine la auditoría, pedí las direcciones, elegí una y seguí paso a paso (ver [Uso](#uso)).
 
@@ -209,20 +209,20 @@ El primer argumento indica hasta dónde avanza la skill; lo que escribas despué
 
 | Comando | Qué hace |
 |---|---|
-| `/ui-ux-audit` | Retoma desde el estado guardado y avanza hasta el próximo punto de aprobación |
-| `/ui-ux-audit audit` | Solo relevamiento y auditoría, y se detiene |
-| `/ui-ux-audit directions` | Propone las tres direcciones (reutiliza una auditoría existente) y espera tu elección |
-| `/ui-ux-audit design-system` | Arma el design system de la dirección que elegiste |
-| `/ui-ux-audit spec` | Escribe las tareas de implementación |
-| `/ui-ux-audit implement <tareas>` | Implementa las tareas que apruebes y después valida |
-| `/ui-ux-audit validate` | Vuelve a capturar las pantallas y las compara con las originales |
+| `/ux-ui-audit` | Retoma desde el estado guardado y avanza hasta el próximo punto de aprobación |
+| `/ux-ui-audit audit` | Solo relevamiento y auditoría, y se detiene |
+| `/ux-ui-audit directions` | Propone las tres direcciones (reutiliza una auditoría existente) y espera tu elección |
+| `/ux-ui-audit design-system` | Arma el design system de la dirección que elegiste |
+| `/ux-ui-audit spec` | Escribe las tareas de implementación |
+| `/ux-ui-audit implement <tareas>` | Implementa las tareas que apruebes y después valida |
+| `/ux-ui-audit validate` | Vuelve a capturar las pantallas y las compara con las originales |
 
 Ejemplos:
 ```text
-/ui-ux-audit audit Auditá la aplicación actual sin modificar el código.
-/ui-ux-audit directions Recorré la aplicación y proponé tres direcciones completas de rebranding.
-/ui-ux-audit design-system Usá la dirección 2, pero con la tipografía de la 3.
-/ui-ux-audit implement Implementá la dirección aprobada con las especificaciones generadas, tareas TASK-001 a TASK-004.
+/ux-ui-audit audit Auditá la aplicación actual sin modificar el código.
+/ux-ui-audit directions Recorré la aplicación y proponé tres direcciones completas de rebranding.
+/ux-ui-audit design-system Usá la dirección 2, pero con la tipografía de la 3.
+/ux-ui-audit implement Implementá la dirección aprobada con las especificaciones generadas, tareas TASK-001 a TASK-004.
 ```
 
 Claude también puede activar la skill por su cuenta si le pedís algo como "revisá la UX de esta app" o "este dashboard se ve viejo, proponé un rediseño". En ese caso también trabaja en modo solo auditoría.
@@ -330,11 +330,11 @@ Si algún par no llega a AA, termina con código 1, así que también sirve en C
 - Las fuentes y recursos que sugieren las direcciones requieren revisar su licencia.
 - El guard cubre las herramientas de edición de archivos de Claude, no los comandos de shell; en modo auditoría, que no se escriba con Bash depende solo de las instrucciones. El comando del hook usa `${CLAUDE_SKILL_DIR}`: si tu shell no la resuelve (por ejemplo PowerShell sin Git Bash), el hook no bloquea nada y la fase 0 informa el guard como faltante.
 - El flujo se probó contra `@playwright/mcp` 0.0.68 y el código del plugin oficial frontend-design 1.1.1, no contra todas las versiones.
-- Una auditoría larga consume bastante contexto. Los informes se guardan en archivos y las respuestas en el chat son cortas; podés retomar cuando quieras con `/ui-ux-audit`.
+- Una auditoría larga consume bastante contexto. Los informes se guardan en archivos y las respuestas en el chat son cortas; podés retomar cuando quieras con `/ux-ui-audit`.
 
 ## Estructura del repo
 ```
-ui-ux-audit/
+ux-ui-audit/
 ├── SKILL.md                     punto de entrada: flujo, aprobaciones, modos, seguridad
 ├── README.md / README.es.md
 ├── LICENSE                      CC BY-NC 4.0
@@ -364,12 +364,12 @@ ui-ux-audit/
 ## Actualizar y desinstalar
 ```bash
 # actualizar
-git -C ~/.claude/skills/ui-ux-audit pull
+git -C ~/.claude/skills/ux-ui-audit pull
 
 # desinstalar
-rm -rf ~/.claude/skills/ui-ux-audit
+rm -rf ~/.claude/skills/ux-ui-audit
 ```
-En Windows usá `"$env:USERPROFILE\.claude\skills\ui-ux-audit"` como ruta y `Remove-Item -Recurse -Force` para desinstalar.
+En Windows usá `"$env:USERPROFILE\.claude\skills\ux-ui-audit"` como ruta y `Remove-Item -Recurse -Force` para desinstalar.
 
 ## Contribuir
 Los issues y pull requests son bienvenidos. Al contribuir, aceptás que tu aporte quede bajo la misma licencia CC BY-NC 4.0. Sirven especialmente:

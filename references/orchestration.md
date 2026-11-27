@@ -1,10 +1,10 @@
 # Orchestration: specialists, dependency checks and handoffs
 
-`ui-ux-audit` is the orchestrator. It owns the workflow, the gates, the reports and the specs. It delegates two jobs it must not do on its own:
+`ux-ui-audit` is the orchestrator. It owns the workflow, the gates, the reports and the specs. It delegates two jobs it must not do on its own:
 
 | Capability | Responsibility | Required | Mechanism |
 |---|---|---|---|
-| `ui-ux-audit` | Workflow orchestration, discovery, evidence synthesis, reports, gates, SDD specs, implementation coordination | Yes | This skill |
+| `ux-ui-audit` | Workflow orchestration, discovery, evidence synthesis, reports, gates, SDD specs, implementation coordination | Yes | This skill |
 | `frontend-design` | How the product should look and feel: art direction, identity, typography, color, composition, component aesthetics, hierarchy, interaction design, design-system aesthetics | Yes | Skill tool |
 | Playwright MCP | How the product actually renders and behaves: navigation, routes, interaction, viewports, screenshots, evidence, before/after validation | Yes | MCP tool calls |
 
@@ -51,7 +51,7 @@ Write `.ui-audit/00-dependencies.md` and show the table in chat:
 ```markdown
 | Capability | Status | Name / tool prefix | Evidence or error |
 |---|---|---|---|
-| ui-ux-audit | succeeded | ui-ux-audit (${CLAUDE_SKILL_DIR}) | running |
+| ux-ui-audit | succeeded | ux-ui-audit (${CLAUDE_SKILL_DIR}) | running |
 | frontend-design | detected | frontend-design:frontend-design | listed in session skills |
 | Playwright MCP | succeeded | mcp__playwright__ | browser_tabs list → 1 tab |
 | Source-edit guard | succeeded | PreToolUse hook | guard.log allow 00-dependencies.md |
